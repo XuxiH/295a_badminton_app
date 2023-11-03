@@ -22,8 +22,15 @@ const userSchema = new mongoose.Schema({
     },
     skillRating:{
         type: Number,
-        required: true,
         default: 1500
+    },
+    onlineStatus:{
+        type:Boolean,
+        default: false
+    },
+    matchStaus:{
+        type:Boolean,
+        default: false
     }
     
 },{
