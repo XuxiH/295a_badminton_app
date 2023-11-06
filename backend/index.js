@@ -5,6 +5,10 @@ var cors = require("cors");
 var config = require("./configs/config");
 var mongoose = require("mongoose");
 const fileUpload = require("express-fileupload");
+let dotenv = require("dotenv");
+dotenv.config();
+//const port = process.env.PORT;
+let userRoutes = require("./routes/userRoute");
 
 app.set("view engine", "ejs");
 
@@ -55,6 +59,12 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Failed to connect to MongoDB:", err));
 
+app.get("/", (req, res)=>{
+  res.send('Application is running');
+})
 
-app.listen(3001);
+app.use('/badminton/users', userRoutes); //get all the users
+
+
+app.listen(process.env.PORT);
 console.log("server listening to port 3001");
