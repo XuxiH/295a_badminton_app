@@ -4,20 +4,85 @@ const asyncHandler = require("../middleware/asyncHandler");
 let User =  require("../models/users");
 let Admin = require("../models/adminUser");
 
-
-router.get('/', asyncHandler(async(req, res) =>{
-    res.json("hello backend");
+//api to fetch one user by his email
+router.get('/email', asyncHandler(async(req, res) =>{
+    const user = await User.findOne({ email: req.body.email });;
+    if(user){
+      let userInfor = {
+        "email":user.email,
+        "name":user.name,
+        "zipCode": user.zipCode,
+        "yearsOfExpereince": user.yearsOfExpereince,
+        "skillRating":user.skillRating,
+        "onlineStatus": user.onlineStatus,
+        "matchStaus": user.matchStaus
+      };
+        return res.status(200).json({statusCode: 200,message: 'Found user!',body:userInfor});
+    }
+    
+    res.status(404).json({statusCode: 404,message: 'user not found'});
 
 }));
 
-router.get('/:id', asyncHandler(async(req, res) =>{
-    const user = await User.findById(req.params.id);
-    if(user){
-        return res.json(user);
+//api to update one user's online status
+router.put('/updateUserOnlineStaus', asyncHandler(async(req, res) =>{
+  const user = await User.findOne({ email: req.body.email });;
+  if(user){
+    user.onlineStatus = true;
+    try{
+      await user.save();
+    }catch(e){
+      return res.status(404).json({statusCode: 404,message: e});
     }
     
-    res.status(404).json({message: 'user not found'});
+    return res.status(200).json({statusCode: 200,message: 'Update user infor successfully.'});
+  }else{
+    return res.status(404).json({statusCode: 404,message: 'Unkonw error to update user infor.'});
+  }
+   
+}));
 
+//api to update one user's match status
+router.put('/updateUserMatchStaus', asyncHandler(async(req, res) =>{
+  const user = await User.findOne({ email: req.body.email });;
+  if(user){
+    user.matchStaus = true;
+    try{
+      await user.save();
+    }catch(e){
+      return res.status(404).json({statusCode: 404,message: e});
+    }
+    
+    return res.status(200).json({statusCode: 200,message: 'Update user infor successfully.'});
+  }else{
+    return res.status(404).json({statusCode: 404,message: 'Unkonw error to update user infor.'});
+  }
+   
+}));
+
+//api to update one user's basic information
+router.put('/updateUserInfo', asyncHandler(async(req, res) =>{
+  const user = await User.findOne({ email: req.body.email });;
+  if(user){
+    let userName = req.body.name;
+    let userZipCode = req.body.zipCode;
+    let userYOE = req.body.yearsOfExpereince;
+    let userSkillRating =  req.body.skillRating;
+    user.name = userName? userName:user.name;
+    user.zipCode = userZipCode? userZipCode:user.zipCode;
+    user.yearsOfExpereince = userYOE? userYOE:user.yearsOfExpereince;
+    user.skillRating = userSkillRating? userSkillRating:user.skillRating;
+    try{
+      await user.save();
+    }catch(e){
+      return res.status(404).json({statusCode: 404,message: e});
+    }
+    
+    return res.status(200).json({statusCode: 200,message: 'Update user infor successfully.'});
+  }else{
+    return res.status(404).json({statusCode: 404,message: 'Unkonw error to update user infor.'});
+  }
+   
 }));
 
 //api to login

@@ -1,0 +1,22 @@
+.form-signin {
+  height: 100%;
+  padding: 30px;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+}
+
+.form-tip {
+  display: flex;
+  justify-content: space-between;
+}
+
+.logo {
+  width: 72px;
+  height: 57px;
+}
