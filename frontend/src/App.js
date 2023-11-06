@@ -1,15 +1,21 @@
 import React from "react";
-import Main from "./components/Main";
-import { BrowserRouter } from "react-router-dom";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
 function App() {
-  return (
-    <BrowserRouter>
-      <div>
-        {/* App Component Has a Child Component called Main*/}
-        <Main />
-      </div>
-    </BrowserRouter>
-  );
+  const router = createBrowserRouter([
+    {
+      path: "/login",
+      element: <Login />,
+    },
+    {
+      path: "/signup",
+      element: <Signup />,
+    },
+  ]);
+
+  return <RouterProvider router={router} />;
 }
 
 export default App;
