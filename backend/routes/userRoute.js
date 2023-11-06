@@ -29,12 +29,12 @@ router.post('/login', asyncHandler(async(req, res) =>{
       console.log(user);
 
       if (!user || !user.length) {
-        return res.status(404).json({ message: "User Not Found" });
+        return res.status(404).json({ statusCode: 404,message: "User Not Found" });
       }
 
       //res.send(user);
       let userName = user[0].name;
-      res.status(200).json({ message: "Welcome "+userName});
+      res.status(200).json({  statusCode: 200, message: "Welcome "+userName});
 
 }));
 
@@ -55,11 +55,11 @@ router.post('/login', asyncHandler(async(req, res) =>{
         });
         console.log(createUser);
         createUser.save();
-        return res.status(200).json({ message: "Account Created" });
+        return res.status(200).json({ statusCode: 200, message: "Account Created" });
       } 
         //account found, send error
         console.log(user);
-        return res.status(404).json({ message: "Unkown error to create user account. Please try again later." });
+        return res.status(404).json({ statusCode: 404,message: "Unkown error to create user account. Please try again later." });
 }));
 
 //api for Admin login
@@ -71,11 +71,11 @@ router.post('/AdminLogin', asyncHandler(async(req, res) =>{
       console.log(admin);
 
       if (!admin || !admin.length) {
-        return res.status(404).json({ message: "User Not Found" });
+        return res.status(404).json({ statusCode: 404,message: "User Not Found" });
       }
 
       //res.send(admin);
-      res.status(200).json({ message: "Admin Signed In." });
+      res.status(200).json({ statusCode: 200,message: "Admin Signed In." });
 
 }));
 
