@@ -1,6 +1,7 @@
 import React from "react";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import Main from "./components/Main";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function App() {
@@ -13,9 +14,17 @@ function App() {
       path: "/signup",
       element: <Signup />,
     },
+    {
+      path: "/main",
+      element: <Main />,
+    },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <div className="container">
+      <RouterProvider router={router} />
+    </div>
+  );
 }
 
 export default App;
