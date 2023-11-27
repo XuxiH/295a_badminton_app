@@ -2,6 +2,7 @@ import React from "react";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Main from "./components/Main";
+import Firstvisit from "./components/FirstVisit";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 function App() {
@@ -17,6 +18,10 @@ function App() {
     {
       path: "/main",
       element: <Main />,
+    },
+    {
+      path: "/firstvisit",
+      element: <Firstvisit />,
     },
   ]);
 

@@ -1,11 +1,12 @@
 import { useState } from "react";
+import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Image from "react-bootstrap/Image";
 import Alert from "react-bootstrap/Alert";
 import logo from "../assets/images/logo.svg";
 import { useNavigate } from "react-router-dom";
-import { register } from "../api";
+import { register, updateUserOnlineStatus } from "../api";
 import "./Login.css";
 
 function Signup() {
@@ -72,7 +73,9 @@ function Signup() {
       });
       if (result && result.statusCode == 200) {
         setWarning({ visible: false, message: "" });
-        navigate("/main");
+        await updateUserOnlineStatus({ email: user.email });
+        sessionStorage.setItem("email", user.email);
+        navigate("/firstvisit");
       } else {
         setWarning({ visible: true, message: result.message });
       }
@@ -86,95 +89,100 @@ function Signup() {
   };
 
   return (
-    <div className="form-signin">
-      {warning.visible && <Alert variant="warning">{warning.message}</Alert>}
-      <Form>
-        <div className="text-center mb-4">
-          <Image className="logo" src={logo} rounded />
-        </div>
-        <h1 className="h3 mb-3 fw-normal text-center">Sign Up</h1>
+    <Container style={{ paddingTop: 56 }}>
+      <div className="form-signin">
+        {warning.visible && <Alert variant="warning">{warning.message}</Alert>}
+        <Form>
+          <div className="text-center mb-4">
+            <Image className="logo" src={logo} rounded />
+          </div>
+          <h1 className="h3 mb-3 fw-normal text-center">Sign Up</h1>
 
-        <Form.Group className="mb-3" controlId="exampleForm.name">
-          <Form.Label>Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={user.name}
-            onChange={(e) => {
-              setUser({ ...user, name: e.target.value });
-            }}
-            placeholder="Type your name"
-          />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="exampleForm.zipCode">
-          <Form.Label>ZipCode</Form.Label>
-          <Form.Control
-            type="text"
-            value={user.zipCode}
-            onChange={(e) => {
-              setUser({ ...user, zipCode: e.target.value });
-            }}
-            placeholder="Type your ZipCode"
-          />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="exampleForm.yearsOfExpereince">
-          <Form.Label>YearsOfExpereince</Form.Label>
-          <Form.Control
-            type="text"
-            value={user.yearsOfExperience}
-            onChange={(e) => {
-              setUser({ ...user, yearsOfExperience: e.target.value });
-            }}
-            placeholder="Type your Years Of Expereince"
-          />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="exampleForm.email">
-          <Form.Label>Email</Form.Label>
-          <Form.Control
-            type="text"
-            value={user.email}
-            onChange={(e) => {
-              setUser({ ...user, email: e.target.value });
-            }}
-            placeholder="Type your Email"
-          />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="exampleForm.password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            value={user.password}
-            onChange={(e) => {
-              setUser({ ...user, password: e.target.value });
-            }}
-            placeholder="Type your password"
-          />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="exampleForm.confirmpassword">
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
-            type="password"
-            value={user.confirmpsw}
-            onChange={(e) => {
-              setUser({ ...user, confirmpsw: e.target.value });
-            }}
-            placeholder="Confirm your password"
-          />
-        </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.name">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={user.name}
+              onChange={(e) => {
+                setUser({ ...user, name: e.target.value });
+              }}
+              placeholder="Type your name"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.zipCode">
+            <Form.Label>ZipCode</Form.Label>
+            <Form.Control
+              type="text"
+              value={user.zipCode}
+              onChange={(e) => {
+                setUser({ ...user, zipCode: e.target.value });
+              }}
+              placeholder="Type your ZipCode"
+            />
+          </Form.Group>
+          <Form.Group
+            className="mb-3"
+            controlId="exampleForm.yearsOfExpereince"
+          >
+            <Form.Label>YearsOfExpereince</Form.Label>
+            <Form.Control
+              type="text"
+              value={user.yearsOfExperience}
+              onChange={(e) => {
+                setUser({ ...user, yearsOfExperience: e.target.value });
+              }}
+              placeholder="Type your Years Of Expereince"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.email">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="text"
+              value={user.email}
+              onChange={(e) => {
+                setUser({ ...user, email: e.target.value });
+              }}
+              placeholder="Type your Email"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.password">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={user.password}
+              onChange={(e) => {
+                setUser({ ...user, password: e.target.value });
+              }}
+              placeholder="Type your password"
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="exampleForm.confirmpassword">
+            <Form.Label>Confirm Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={user.confirmpsw}
+              onChange={(e) => {
+                setUser({ ...user, confirmpsw: e.target.value });
+              }}
+              placeholder="Confirm your password"
+            />
+          </Form.Group>
 
-        <Button
-          className="w-100 btn btn-lg btn-primary"
-          variant="primary"
-          onClick={handleRegister}
-        >
-          Sign Up
-        </Button>
-        <p className="mt-5 mb-3 text-muted text-center">
-          <span className="text-primary" onClick={handleRouteToLogin}>
-            Back to Sign In
-          </span>
-        </p>
-      </Form>
-    </div>
+          <Button
+            className="w-100 btn btn-lg btn-primary"
+            variant="primary"
+            onClick={handleRegister}
+          >
+            Sign Up
+          </Button>
+          <p className="mt-5 mb-3 text-muted text-center">
+            <span className="text-primary" onClick={handleRouteToLogin}>
+              Back to Sign In
+            </span>
+          </p>
+        </Form>
+      </div>
+    </Container>
   );
 }
 
