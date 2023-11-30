@@ -3,6 +3,7 @@ const router = express.Router();
 const asyncHandler = require("../middleware/asyncHandler");
 let User =  require("../models/users");
 let Admin = require("../models/adminUser");
+const bcrypt = require('bcrypt');
 
 //api to fetch one user by his email
 router.get('/email', asyncHandler(async(req, res) =>{
@@ -87,44 +88,53 @@ router.put('/updateUserInfo', asyncHandler(async(req, res) =>{
 
 //api to login
 router.post('/login', asyncHandler(async(req, res) =>{
-    const user = await User.find({
-        email: req.body.email,
-        password: req.body.password,
-      });
-      console.log(user);
+  let user1 = await User.find({email: req.body.email});
+  if (!user1 || !user1.length) {
+    return res.status(404).json({ statusCode: 404,message: "User Not Found" });
+  };
+  let userName;
+  let error;
+  await bcrypt
+      .compare(req.body.password, user1[0].password)
+      .then(res => {
+        console.log(res);
+        if(res){
+          userName = user1[0].name;
+        }   
+  })
+  .catch(err =>     
+    {error = err;}
+  );
 
-      if (!user || !user.length) {
-        return res.status(404).json({ statusCode: 404,message: "User Not Found" });
-      }
-
-      //res.send(user);
-      let userName = user[0].name;
-      res.status(200).json({  statusCode: 200, message: "Welcome "+userName});
-
+  if(!error && userName){
+    return res.status(200).json({  statusCode: 200, message: "Welcome "+userName});
+  }else{
+    return res.status(404).json({ statusCode: 404,message: "Invalid email/password!" });
+  }
+   
 }));
 
 
   //api to register a new user
-  router.post('/register', asyncHandler(async(req, res) =>{
-    console.log(req.body);
-    const user = await User.find({email: req.body.email});
-      console.log(user);
-      if (!user || !user.length) {
-        //account not found, create new user
-        const createUser = new User({
-          name: req.body.name,
-          zipCode: req.body.zipCode,
-          yearsOfExpereince: req.body.yearsOfExpereince,
-          email: req.body.email,
-          password: req.body.password
-        });
-        console.log(createUser);
-        createUser.save();
+router.post('/register', asyncHandler(async(req, res) =>{
+  //console.log(req.body);
+  const user = await User.find({email: req.body.email});
+    //console.log("register information ", user);
+    if (!user || !user.length) {
+      //account not found, create new user
+      const createUser = new User({
+        name: req.body.name,
+        zipCode: req.body.zipCode,
+        yearsOfExpereince: req.body.yearsOfExpereince,
+        email: req.body.email,
+        password: req.body.password
+      });       
+        
+        createUser.save();      
         return res.status(200).json({ statusCode: 200, message: "Account Created" });
-      } 
-        //account found, send error
-        console.log(user);
-        return res.status(404).json({ statusCode: 404,message: "Unkown error to create user account. Please try again later." });
+      }   
+
+        return res.status(404).json({ statusCode: 404,message: "Please provide required information to register an account." });
 }));
 
 //api for Admin login
