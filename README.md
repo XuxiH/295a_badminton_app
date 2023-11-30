@@ -3,11 +3,11 @@ CMPE295 final project-- badminton ML based application
 Backend Endpoint
 1. User registration: localhost:3001/badminton/users/register
 request body JSON:{
-    "name",
-    "zipCode",
-    "yearsOfExpereince",
-    "email",
-    "password"
+    "name",(required)
+    "zipCode",(optional)
+    "yearsOfExpereince",(optional)
+    "email",(required)
+    "password".(required)
 }
 
 response JSON:
