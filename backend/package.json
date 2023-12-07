@@ -20,6 +20,7 @@
         "express-session": "^1.17.3",
         "mongoose": "^7.0.3",
         "nodemon": "^2.0.22",
+        "underscore": "^1.13.6",
         "validator": "^13.11.0"
     },
     "devDependencies": {

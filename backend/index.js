@@ -9,6 +9,7 @@ let dotenv = require("dotenv");
 dotenv.config();
 //const port = process.env.PORT;
 let userRoutes = require("./routes/userRoute");
+let gameInvitationRoutes = require("./routes/gameInvitationRoute");
 
 app.set("view engine", "ejs");
 
@@ -64,6 +65,8 @@ app.get("/", (req, res)=>{
 })
 
 app.use('/badminton/users', userRoutes); //get all the users
+
+app.use('/badminton/gaming', gameInvitationRoutes); 
 
 
 app.listen(process.env.PORT);

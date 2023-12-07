@@ -3,22 +3,18 @@ const router = express.Router();
 const asyncHandler = require("../middleware/asyncHandler");
 let User =  require("../models/users");
 let Admin = require("../models/adminUser");
+let Invitation = require("../models/invitation");
 const bcrypt = require('bcrypt');
-
+const _ = require('underscore');
+let isEmpty = _.isEmpty;
+let without = _.without;
 //api to fetch one user by his email
 router.get('/email', asyncHandler(async(req, res) =>{
-    const user = await User.findOne({ email: req.body.email });;
+    let user = await User.findOne({ email: req.body.email });;
     if(user){
-      let userInfor = {
-        "email":user.email,
-        "name":user.name,
-        "zipCode": user.zipCode,
-        "yearsOfExpereince": user.yearsOfExpereince,
-        "skillRating":user.skillRating,
-        "onlineStatus": user.onlineStatus,
-        "matchStaus": user.matchStaus
-      };
-        return res.status(200).json({statusCode: 200,message: 'Found user!',body:userInfor});
+      user.password = undefined;
+      console.log(user);
+        return res.status(200).json({statusCode: 200,message: 'Found user!',body:user});
     }
     
     res.status(404).json({statusCode: 404,message: 'user not found'});
@@ -65,14 +61,20 @@ router.put('/updateUserMatchStaus', asyncHandler(async(req, res) =>{
 router.put('/updateUserInfo', asyncHandler(async(req, res) =>{
   const user = await User.findOne({ email: req.body.email });;
   if(user){
-    let userName = req.body.name;
-    let userZipCode = req.body.zipCode;
+    let gender = req.body.gender;
+    let age = req.body.age;
+    let zipCode = req.body.zipCode;
     let userYOE = req.body.yearsOfExpereince;
-    let userSkillRating =  req.body.skillRating;
-    user.name = userName? userName:user.name;
-    user.zipCode = userZipCode? userZipCode:user.zipCode;
-    user.yearsOfExpereince = userYOE? userYOE:user.yearsOfExpereince;
-    user.skillRating = userSkillRating? userSkillRating:user.skillRating;
+    let playStyle = req.body.playStyle;
+    let matchingDistance = req.body.matchingDistance;
+    let yourStory = req.body.yourStory;
+    user.gender = gender;
+    user.age = age;
+    user.zipCode = zipCode;
+    user.yearsOfExpereince = userYOE;
+    user.playStyle = playStyle;
+    user.matchingDistance = matchingDistance;
+    user.yourStory = yourStory;
     try{
       await user.save();
     }catch(e){
@@ -151,6 +153,80 @@ router.post('/AdminLogin', asyncHandler(async(req, res) =>{
 
       //res.send(admin);
       res.status(200).json({ statusCode: 200,message: "Admin Signed In." });
+
+}));
+
+//api for finding players information from invitation history
+router.get('/findPlayersRecord', asyncHandler(async(req, res) =>{
+  let userEmail = req.body.email;
+  const user = await Invitation.find({invitorEmail: userEmail});
+
+  if (!user || !user.length) {
+    return res.status(404).json({ statusCode: 404,message: "User Not Found" });
+  }
+
+  let date =  req.body.gamingDate;
+  let time = req.body.gameStartTime;
+  //get the invitation history record
+  let playerRecordObj={
+    invitorEmail: userEmail,
+    gamingDate: date,
+    gameStartTime:time
+
+  }
+  let invitationObj = await Invitation.find(playerRecordObj);
+
+  if(isEmpty(invitationObj)){
+    return res.status(404).json({ statusCode: 404,message: "No invitation record found!" });
+  }
+
+  let invitationRecord = invitationObj[0].inviteeEmail;
+
+  let myPartner;
+  let opponents;
+  let returnBody;
+  if(invitationRecord.length === 1){
+    opponents = invitationRecord[0];
+    returnBody = {
+      opponent: opponents
+    }
+  }else{
+    myPartner = invitationRecord[0];
+    opponents = without(invitationRecord, myPartner);
+    returnBody = {
+      partner: myPartner,
+      opponent: opponents
+    }
+  }
+
+    //res.send(admin);
+    res.status(200).json({ statusCode: 200,
+      message: "Found players list.", 
+      body: returnBody
+    });
+
+}));
+
+//api for Adding match history
+router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
+
+  const user = await User.find({email: req.body.email});
+
+  if (!user || !user.length) {
+    return res.status(404).json({ statusCode: 404,message: "User Not Found" });
+  }
+
+  let playFormat = req.body.playFormat;
+  let yourScore = req.body.yourScore;
+  let opponentScore = req.body.opponentScore;
+  
+  //TODO: if it is single match, store opponent email
+  //TODO: if it is double players match, store, partner emial, two other opponents emails
+  
+
+
+    //res.send(admin);
+   return res.status(200).json({ statusCode: 200,message: "Admin Signed In." });
 
 }));
 

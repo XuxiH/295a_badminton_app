@@ -38,7 +38,30 @@ const userSchema = new mongoose.Schema({
     matchStaus:{
         type:Boolean,
         default: false
-    }
+    },
+    age:{
+        type: Number,
+        default : 20
+    },
+    gender:{
+        type: String,
+        default : "F"
+    },
+    playStyle:{
+        type: String
+    },
+    matchingDistance :{
+        type: Number,
+        default : 20
+    },
+    yourStory :{
+        type: String,
+        default : "Hello!"
+    },
+    matchHistory:{ //coming from the MatchHistory schema
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "MatchHistory"
+},
     
 },{
     timestamps:true
