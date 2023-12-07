@@ -5,6 +5,7 @@ let User =  require("../models/users");
 let Admin = require("../models/adminUser");
 let Invitation = require("../models/invitation");
 let MatchHistory = require("../models/matchHistory");
+let AImodel = require("../models/aiTrainingModel");
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 let isEmpty = _.isEmpty;
@@ -14,7 +15,6 @@ router.get('/email', asyncHandler(async(req, res) =>{
     let user = await User.findOne({ email: req.body.email });;
     if(user){
       user.password = undefined;
-      console.log(user);
         return res.status(200).json({statusCode: 200,message: 'Found user!',body:user});
     }
     
@@ -285,6 +285,46 @@ router.get('/getMatchHistory', asyncHandler(async(req, res) =>{
         
 }));
 
+
+//api for getting AI training data 
+router.post('/addAImodelData', asyncHandler(async(req, res) =>{
+  let userEmail = req.body.email;
+  const user = await User.find({email: userEmail});
+
+  if (!user || !user.length) {
+    return res.status(404).json({ statusCode: 404,message: "User Not Found" });
+  }
+
+  let choices = req.body.choices;
+  let createAImodel = new AImodel({
+    "email": userEmail,
+    "choices":choices
+  })
+  createAImodel.save();
+
+  return res.status(200).json({ 
+    statusCode: 200,
+    message: "Successfully created AI training data for user, " + userEmail
+  });
+
+}));
+
+//api to fetch a user's AI training data
+router.get('/getAImodelData', asyncHandler(async(req, res) =>{
+  let userEmail = req.body.email;
+  const user = await AImodel.find({email: userEmail});
+
+  if (!user || !user.length) {
+    return res.status(404).json({ statusCode: 404,message: "User Not Found" });
+  }
+
+  return res.status(200).json({ 
+    statusCode: 200,
+    message: "Successfully get AI training data for user, " + userEmail,
+    body: user[0]
+  });
+
+}));
 
 
 module.exports = router;

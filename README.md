@@ -360,3 +360,108 @@ OR:
   "statusCode": 404,
   "message": "User Not Found"
 }
+
+13. api to store AI training data into DB: localhost:3001/badminton/users/addAImodelData
+request body:
+{
+  "email": "test@hotmail.com",
+  "choices": [
+    {
+    "1": ["u1@gmail.com"],
+    "2": ["u2@gmail.com"],
+    "choice": "1"
+    },
+    {
+    "1": ["u1@gmail.com","u2@gmail.com"],
+    "2": ["u2@gmail.com","u2@gmail.com"],
+    "choice": "1"
+    },
+    {
+    "1": ["u1@gmail.com"],
+    "2": ["u2@gmail.com"],
+    "choice": "1"
+    },
+    {
+    "1": ["u1@gmail.com","u2@gmail.com"],
+    "2": ["u2@gmail.com","u2@gmail.com"],
+    "choice": "1"
+    }
+  ]
+}
+
+response body:
+{
+  "statusCode": 200,
+  "message": "Successfully created AI training data for user, test@hotmail.com"
+}
+OR:
+{
+  "statusCode": 404,
+  "message": "User Not Found"
+}
+
+14. APi to fetch a user's AI training model data: 
+request body:
+{
+  "email": "test@hotmail.com"
+}
+
+response body:
+{
+  "statusCode": 200,
+  "message": "Successfully get AI training data for user, test@hotmail.com",
+  "body": {
+    "_id": "65724052dd346e6659e67767",
+    "email": "test@hotmail.com",
+    "choices": [
+      {
+        "1": [
+          "u1@gmail.com"
+        ],
+        "2": [
+          "u2@gmail.com"
+        ],
+        "choice": "1"
+      },
+      {
+        "1": [
+          "u1@gmail.com",
+          "u2@gmail.com"
+        ],
+        "2": [
+          "u2@gmail.com",
+          "u2@gmail.com"
+        ],
+        "choice": "1"
+      },
+      {
+        "1": [
+          "u1@gmail.com"
+        ],
+        "2": [
+          "u2@gmail.com"
+        ],
+        "choice": "1"
+      },
+      {
+        "1": [
+          "u1@gmail.com",
+          "u2@gmail.com"
+        ],
+        "2": [
+          "u2@gmail.com",
+          "u2@gmail.com"
+        ],
+        "choice": "1"
+      }
+    ],
+    "createdAt": "2023-12-07T21:59:46.524Z",
+    "updatedAt": "2023-12-07T21:59:46.524Z",
+    "__v": 0
+  }
+}
+OR:
+{
+  "statusCode": 404,
+  "message": "User Not Found"
+}
