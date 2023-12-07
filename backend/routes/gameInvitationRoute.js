@@ -5,6 +5,7 @@ let Invitation =  require("../models/invitation");
 let User =  require("../models/users");
 const _ = require('underscore');
 let unique =  _.uniq;
+let isEmpty = _.isEmpty;
 
 //api to send gaming invitation information for single player
 router.post('/inviteSinglePlayer', asyncHandler(async(req, res) =>{
@@ -39,7 +40,7 @@ let notes = req.body.notes;
 
 let createInvitation = await new Invitation({
     invitorEmail: invitorEmail,
-    inviteeEmail: [inviteeEmail],
+    inviteeEmail: [{"opponent" : inviteeEmail}],
     phoneNumber:phoneNumber,
     gamingDate:gamingDate,
     gameStartTime:gameStartTime,
@@ -88,9 +89,7 @@ router.post('/inviteDoublePlayer', asyncHandler(async(req, res) =>{
         //no invotor found in the system
         return res.status(404).json({ statusCode: 404,message: "Not be able to find the opponents in the system." });            
     }
-
-
-        
+     
     let phoneNumber = req.body.phoneNumber;
     let gamingDate = req.body.gamingDate;
     let gameStartTime = req.body.gameStartTime;
@@ -101,7 +100,7 @@ router.post('/inviteDoublePlayer', asyncHandler(async(req, res) =>{
 
     let createInvitation = await new Invitation({
         invitorEmail: invitorEmail,
-        inviteeEmail: [invitorPartnerEmail,inviteePlayer1Email,inviteePlayer2Email],
+        inviteeEmail: [{"partner": invitorPartnerEmail},{"opponent" : [inviteePlayer1Email,inviteePlayer2Email]}],
         phoneNumber:phoneNumber,
         gamingDate:gamingDate,
         gameStartTime:gameStartTime,
@@ -122,6 +121,55 @@ router.post('/inviteDoublePlayer', asyncHandler(async(req, res) =>{
         message: "Invitation Created for Double players, "+ userInvitor[0].name + " and " + userInvitorPartner[0].name,
         body: invitationPlayers
     });
-    }));
+}));
+
+//api to get gaming invitation alerts
+router.get('/getNotification', asyncHandler(async(req, res) =>{
+    let myEmail = req.body.email;   
+    if(!myEmail){
+        return res.status(404).json({ statusCode: 404,message: "Please provide an valid email." }); 
+    }
+    // validate a valid invitor user 
+    let myself = await User.find({email: myEmail});
+    if (!myself || !myself.length) {
+        //no invotor found in the system
+        return res.status(404).json({ statusCode: 404,message: "Not be able to find the user in the system." });            
+    }
+
+    //validate a valid invitation record
+    let notificationList =[];
+    
+    let invitationRecordAsPartner = await Invitation.find({"inviteeEmail.partner": myEmail});
+    let invitationRecordAsOpponent = await Invitation.find({"inviteeEmail.opponent": myEmail});
+    console.log("as partner, ", invitationRecordAsPartner);
+    console.log("as opponent, ", invitationRecordAsOpponent);
+    if(!isEmpty(invitationRecordAsPartner)){
+        invitationRecordAsPartner.forEach(partner => {
+            let notificationObj = {
+                "invitor": partner.invitorEmail,
+                "message": "You received a gaming invitation as the invitor's partner."
+            };
+            notificationList.push(notificationObj);
+        });
+    }
+
+    if(!isEmpty(invitationRecordAsOpponent)){
+        invitationRecordAsOpponent.forEach(partner => {
+            let notificationObj = {
+                "invitor": partner.invitorEmail,
+                "message": "You received a gaming invitation as the invitor's opponent."
+            };
+            notificationList.push(notificationObj);
+        });
+    }
+
+    return res.status(200).json({ 
+        statusCode: 200, 
+        message: "Invitation notifications.",
+        body: notificationList
+    });
+}));
+
+
 
   module.exports = router;

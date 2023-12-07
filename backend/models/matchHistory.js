@@ -1,6 +1,10 @@
 let mongoose = require("mongoose");
 
 const matchHistorySchema = mongoose.Schema({
+    email:{ //coming from the MatchHistory schema
+        type: String,
+        required: [true, "Email is a required field"]
+    },
     date:{
         type: Date
     },
@@ -8,7 +12,7 @@ const matchHistorySchema = mongoose.Schema({
         type: String
     },
     matchingPartners:{
-        type: Array
+        type: String
     },
     matchingOpponents:{
         type: Array
@@ -16,7 +20,7 @@ const matchHistorySchema = mongoose.Schema({
     yourScore:{
         type: Number
     },
-    theirScore:{
+    opponentScore:{
         type: Number
     }
 },{

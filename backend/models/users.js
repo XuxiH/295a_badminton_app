@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     },
     name: {
         type: String,
+        unique: true,
         required: [true, "User name is a required field"],
     },
     zipCode:{
@@ -61,7 +62,7 @@ const userSchema = new mongoose.Schema({
     matchHistory:{ //coming from the MatchHistory schema
     type: mongoose.Schema.Types.ObjectId,
     ref: "MatchHistory"
-},
+    },
     
 },{
     timestamps:true

@@ -236,3 +236,127 @@ OR:
   "statusCode": 404,
   "message": "User Not Found"
 }
+
+10. api to fetch this user's invitation notification: localhost:3001/badminton/gaming/getNotification
+
+request body:
+{
+  "email":"test19@hotmail.com"
+}
+
+response body:
+{
+  "statusCode": 200,
+  "message": "Invitation notifications.",
+  "body": [
+    {
+      "invitor": "test191@hotmail.com",
+      "message": "You received a gaming invitation as the invitor's partner."
+    },
+    {
+      "invitor": "test191@hotmail.com",
+      "message": "You received a gaming invitation as the invitor's opponent."
+    }
+  ]
+}
+
+OR:
+{
+  "statusCode": 404,
+  "message": "Not be able to find the user in the system."
+}
+
+11. api to add this user's match record: localhost:3001/badminton/users/addMatchHistory
+for single playing format:
+request body: 
+{
+  "email":"test@hotmail.com",
+   "playFormat" : "Single",
+  "date": "2024-09-01",
+  "yourScore": 34,
+  "opponentScore": 56,
+  "opponentEmail": ["test26768@hotmail.com"] //This must pass in as array
+  
+}
+response body:
+{
+  "statusCode": 200,
+  "message": "Match history created for your single player format game."
+}
+OR:
+{
+  "statusCode": 404,
+  "message": "Missing your opponent's email."
+}
+
+For double players gaming mode:
+request body: 
+{
+  "email":"test@hotmail.com",
+   "playFormat" : "Double",
+  "date": "2026-09-01",
+  "yourScore": 35,
+  "opponentScore": 56,
+  "partnerEmail": "test2@gmail.com",
+  "opponentEmail": ["test26768@hotmail.com","test112909@hotmail.com"]  //This must pass in as array
+  
+}
+response body:
+{
+  "statusCode": 200,
+  "message": "Match history created for your double player format game."
+}
+{
+  "statusCode": 404,
+  "message": "Missing your opponent's email."
+}
+
+12. api to fetch a user's match history: localhost:3001/badminton/users/getMatchHistory
+request body:
+{
+  "email":"test@hotmail.com"
+}
+
+response body:
+{
+  "statusCode": 200,
+  "message": "Match history found.",
+  "body": [
+    {
+      "_id": "65722e1411b00b7248119dfd",
+      "email": "test@hotmail.com",
+      "date": "2026-09-01T00:00:00.000Z",
+      "playFormat": "Single",
+      "matchingOpponents": [
+        "test26768@hotmail.com"
+      ],
+      "yourScore": 35,
+      "opponentScore": 56,
+      "createdAt": "2023-12-07T20:41:56.297Z",
+      "updatedAt": "2023-12-07T20:41:56.297Z",
+      "__v": 0
+    },
+    {
+      "_id": "65722f498c96ccbeed86544b",
+      "email": "test@hotmail.com",
+      "date": "2026-09-01T00:00:00.000Z",
+      "playFormat": "Double",
+      "matchingPartners": "test2@gmail.com",
+      "matchingOpponents": [
+        "test26768@hotmail.com",
+        "test112909@hotmail.com"
+      ],
+      "yourScore": 35,
+      "opponentScore": 56,
+      "createdAt": "2023-12-07T20:47:05.397Z",
+      "updatedAt": "2023-12-07T20:47:05.397Z",
+      "__v": 0
+    }
+  ]
+}
+
+OR:
+{
+  "statusCode": 404,
+  "message": "User Not Found"
+}

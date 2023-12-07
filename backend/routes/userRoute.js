@@ -4,6 +4,7 @@ const asyncHandler = require("../middleware/asyncHandler");
 let User =  require("../models/users");
 let Admin = require("../models/adminUser");
 let Invitation = require("../models/invitation");
+let MatchHistory = require("../models/matchHistory");
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
 let isEmpty = _.isEmpty;
@@ -207,7 +208,7 @@ router.get('/findPlayersRecord', asyncHandler(async(req, res) =>{
 
 }));
 
-//api for Adding match history
+//api for Adding match history 
 router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
 
   const user = await User.find({email: req.body.email});
@@ -217,17 +218,71 @@ router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
   }
 
   let playFormat = req.body.playFormat;
+  let date = req.body.date;
   let yourScore = req.body.yourScore;
   let opponentScore = req.body.opponentScore;
-  
+
+  let partnerEmail = req.body.partnerEmail; 
+  let opponentEmail = req.body.opponentEmail; //Pleae passed in array format
+
+  if(playFormat === 'Single' && opponentEmail.length !=1){
+    return res.status(404).json({ statusCode: 404,message: "Missing your opponent's email." }); 
+  }
+  if((playFormat === 'Double' || playFormat === 'Mix')&& opponentEmail.length !=2){
+    return res.status(404).json({ statusCode: 404,message: "Missing your opponent's email." }); 
+  }
+
+  if((playFormat === 'Double' || playFormat === 'Mix')){
+    if(!partnerEmail){
+      return res.status(404).json({ statusCode: 404,message: "Missing your partner's email." });   
+    }
+  }
+
   //TODO: if it is single match, store opponent email
+  if(playFormat === 'Single'){
+    let userMatchHistoryObj = new MatchHistory({
+      "email": req.body.email,
+      "date": date,
+      "playFormat": playFormat,
+      "matchingPartners" : undefined,
+      "matchingOpponents":opponentEmail[0],
+      "yourScore": yourScore,
+      "opponentScore":opponentScore
+    });
+    userMatchHistoryObj.save();
+    return res.status(200).json({ statusCode: 200,message: "Match history created for your single player format game." });
+  }
   //TODO: if it is double players match, store, partner emial, two other opponents emails
-  
+  if(playFormat === 'Double' || playFormat === 'Mix'){
+    let userMatchHistoryObj = new MatchHistory({
+      "email": req.body.email,
+      "date": date,
+      "playFormat": playFormat,
+      "matchingPartners" : partnerEmail,
+      "matchingOpponents":opponentEmail,
+      "yourScore": yourScore,
+      "opponentScore":opponentScore
+    });
+    userMatchHistoryObj.save();
+    return res.status(200).json({ statusCode: 200,message: "Match history created for your "+ playFormat +" player format game." });
+  }
+    
+  return res.status(404).json({ statusCode: 404,message: "Unknow error to save user's match history." });
+}));
 
+//api fetch a user's match history
+router.get('/getMatchHistory', asyncHandler(async(req, res) =>{
 
-    //res.send(admin);
-   return res.status(200).json({ statusCode: 200,message: "Admin Signed In." });
-
+  let user = await MatchHistory.find({email: req.body.email});
+  if (!user || !user.length) {
+    return res.status(404).json({ statusCode: 404,message: "User Not Found" });
+  }
+   
+  return res.status(200).json({ 
+    statusCode: 200,
+    message: "Match history found.",
+    body: user});
+        
 }));
 
 
