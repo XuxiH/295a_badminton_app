@@ -33,11 +33,7 @@ OR
     statusCode: 404,message: "User Not Found" 
 }
 
-3. Fetch user profile information:localhost:3001/badminton/users/email
-request body JSON:
-{
-    "email": "test@hotmail.com"
-}
+3. Fetch user profile information:localhost:3001/badminton/users/email/test191@hotmail.com
 
 response JSON:
 {
@@ -311,11 +307,7 @@ response body:
   "message": "Missing your opponent's email."
 }
 
-12. api to fetch a user's match history: localhost:3001/badminton/users/getMatchHistory
-request body:
-{
-  "email":"test@hotmail.com"
-}
+12. api to fetch a user's match history: localhost:3001/badminton/users/getMatchHistory/:email
 
 response body:
 {
@@ -400,11 +392,7 @@ OR:
   "message": "User Not Found"
 }
 
-14. APi to fetch a user's AI training model data: 
-request body:
-{
-  "email": "test@hotmail.com"
-}
+14. APi to fetch a user's AI training model data: localhost:3001/badminton/users/getAImodelData/test@hotmail.com
 
 response body:
 {
