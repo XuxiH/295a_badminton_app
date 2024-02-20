@@ -11,8 +11,9 @@ const _ = require('underscore');
 let isEmpty = _.isEmpty;
 let without = _.without;
 //api to fetch one user by his email
-router.get('/email', asyncHandler(async(req, res) =>{
-    let user = await User.findOne({ email: req.body.email });;
+router.get('/email/:email', asyncHandler(async(req, res) =>{
+  const {email} = req.params;
+    let user = await User.findOne({ email: email });
     if(user){
       user.password = undefined;
         return res.status(200).json({statusCode: 200,message: 'Found user!',body:user});
@@ -271,9 +272,10 @@ router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
 }));
 
 //api fetch a user's match history
-router.get('/getMatchHistory', asyncHandler(async(req, res) =>{
+router.get('/getMatchHistory/:email', asyncHandler(async(req, res) =>{
 
-  let user = await MatchHistory.find({email: req.body.email});
+  const {email} = req.params;
+  let user = await MatchHistory.find({email: email});
   if (!user || !user.length) {
     return res.status(404).json({ statusCode: 404,message: "User Not Found" });
   }
@@ -310,8 +312,8 @@ router.post('/addAImodelData', asyncHandler(async(req, res) =>{
 }));
 
 //api to fetch a user's AI training data
-router.get('/getAImodelData', asyncHandler(async(req, res) =>{
-  let userEmail = req.body.email;
+router.get('/getAImodelData/:userEmail', asyncHandler(async(req, res) =>{
+  const {userEmail} = req.params;
   const user = await AImodel.find({email: userEmail});
 
   if (!user || !user.length) {
