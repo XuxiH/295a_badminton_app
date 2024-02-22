@@ -7,13 +7,13 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 
-@app.get("/1p")
+@app.get("/1p") # calculate elo changes for 1v1
 async def onep(p1Elo: float, p2Elo: float, s1: int, s2: int):
     p1EloNew, p2EloNew = calc1pGame(p1Elo, p2Elo, s1, s2)
     return {"p1EloNew": p1EloNew,
             "p2EloNew": p2EloNew}
 
-@app.get("/2p")
+@app.get("/2p") # calculate elo changes for 2v2
 async def onep(t1p1Elo: float, t1p2Elo: float, t2p1Elo: float, t2p2Elo: float, s1: int, s2: int):
     t1p1EloNew, t1p2EloNew, t2p1EloNew, t2p2EloNew = calc2pGame(t1p1Elo, t1p2Elo, t2p1Elo, t2p2Elo, s1, s2)
     return {"t1p1EloNew": t1p1EloNew,
@@ -21,7 +21,7 @@ async def onep(t1p1Elo: float, t1p2Elo: float, t2p1Elo: float, t2p2Elo: float, s
             "t2p1EloNew": t2p1EloNew,
             "t2p2EloNew": t2p2EloNew}
 
-# ===================================== UTIL FUNCS =====================================
+# ===================================== ELO UTIL FUNCS =====================================
 def get2pUpsetMult(t1p1Elo, t1p2Elo, t2p1Elo, t2p2Elo, t1Score, t2Score, upsetConstant = 1):
         if t1Score >= t2Score:
             winningElo = (t1p1Elo + t1p2Elo) / 2
@@ -51,7 +51,7 @@ def getLobbyEloMult(lobbyElo, playerElo, win, constant = 0.002): # new version u
         
 def getScoreDeltaMult(t1Score, t2Score, scoreDeltaConstant = 1):
         delta = abs(t1Score - t2Score)
-        return scoreDeltaConstant * (delta - 1) / 20
+        return scoreDeltaConstant * delta / 21 # used to be delta - 1
 
 def calc2pGame(t1p1Elo, t1p2Elo, t2p1Elo, t2p2Elo, t1Score, t2Score, winElo = 100, lossElo = -100):
     upsetMult = get2pUpsetMult(t1p1Elo, t1p2Elo, t2p1Elo, t2p2Elo, t1Score, t2Score)
