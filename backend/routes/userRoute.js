@@ -300,9 +300,12 @@ router.post('/addAImodelData', asyncHandler(async(req, res) =>{
   }
 
   let choices = req.body.choices;
+  let weights = req.body.weights; //it will need ML backend to pass the weights into it
+  
   let createAImodel = new AImodel({
     "email": userEmail,
-    "choices":choices
+    "choices":choices,
+    "weights":weights
   })
   createAImodel.save();
 

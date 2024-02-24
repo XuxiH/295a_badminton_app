@@ -357,8 +357,8 @@ OR:
 ### 13. api to store AI training data into DB: localhost:3001/badminton/users/addAImodelData
 request body:
 {
-  "email": "test@hotmail.com",
-  "choices": [
+  "email": "test@hotmail.com", //required field
+  "choices": [ //required field
     {
     "1": ["u1@gmail.com"],
     "2": ["u2@gmail.com"],
@@ -379,7 +379,15 @@ request body:
     "2": ["u2@gmail.com","u2@gmail.com"],
     "choice": "1"
     }
-  ]
+  ],
+  "weights":{ //This field will need to be inserted from ML end
+    "age_diff":-0.5414381889533985,
+    "yoe_diff":-0.42705239244499316,
+    "format_compat": 0.08391591231691248,
+    "style_compat": -0.42429159089896257,
+    "rating_diff":-0.009866942037373792,
+    "onlineStatus":0.10385781902388118,
+    "matchStatus":-0.6471027957443989
 }
 
 response body:
