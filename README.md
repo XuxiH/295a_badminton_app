@@ -465,6 +465,8 @@ OR:
 
 ## ML Endpoints
 ### 1. API to calculate elo changes for doubles games
+URL: localhost:8000/2p
+
 Request structure:
 ```
 {
@@ -498,6 +500,7 @@ Response example:
 ```
 
 ### 2. API to calculate elo changes for singles games
+URL: localhost:8000/1p
 Request structure:
 ```
 {
@@ -525,6 +528,7 @@ Response example:
 ```
 
 ### 3. API to request the training of a user's preference model
+URL: localhost:8000/trainml
 Request structure:
 ```
 {
