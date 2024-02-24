@@ -309,6 +309,30 @@ router.post('/addAImodelData', asyncHandler(async(req, res) =>{
   })
   createAImodel.save();
 
+  const http = require('http');
+
+const options = {
+  hostname: '127.0.0.1',
+  port: 8000,
+  path: '/api/data',
+  method: 'GET'
+};
+
+const request = http.request(options, (res) => {
+  console.log(`statusCode: ${res.statusCode}`);
+
+  res.on('data', (d) => {
+    process.stdout.write(d);
+  });
+});
+
+request.on('error', (error) => {
+  console.error(error);
+});
+
+request.end();
+
+
   return res.status(200).json({ 
     statusCode: 200,
     message: "Successfully created AI training data for user, " + userEmail
