@@ -514,3 +514,21 @@ Response example:
     "p2EloNew": 1742.8196868608447
 }
 ```
+
+### 3. API to request the training of a user's preference model
+Request structure:
+```
+{
+    "userEmail": string
+}
+```
+Request exmaple:
+```
+{
+    "userEmail": "bruceoconnor@sjsu.edu"
+}
+```
+Response example:
+```
+"[SUCCESS] model training completed for bruceoconnor@sjsu.edu."
+```
