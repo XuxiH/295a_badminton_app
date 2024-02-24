@@ -1,7 +1,7 @@
-CMPE295 final project-- badminton ML based application
+# CMPE295 final project-- badminton ML based application
 
-Backend Endpoint
-1. User registration: localhost:3001/badminton/users/register
+## Backend Endpoint
+### 1. User registration: localhost:3001/badminton/users/register
 request body JSON:{
     "name",(required)
     "zipCode",(optional)
@@ -17,7 +17,7 @@ OR
     statusCode: 404,message: "Unkown error to create user account. Please try again later." 
 }
 
-2. User login: localhost:3001/badminton/users/login
+### 2. User login: localhost:3001/badminton/users/login
 request body JSON:
 {
     "email",
@@ -33,7 +33,7 @@ OR
     statusCode: 404,message: "User Not Found" 
 }
 
-3. Fetch user profile information:localhost:3001/badminton/users/email/test191@hotmail.com
+### 3. Fetch user profile information:localhost:3001/badminton/users/email/test191@hotmail.com
 
 response JSON:
 {
@@ -64,7 +64,7 @@ OR
   "message": "user not found"
 }
 
-4. api to update one user's online status: localhost:3001/badminton/users/updateUserOnlineStaus
+### 4. api to update one user's online status: localhost:3001/badminton/users/updateUserOnlineStaus
 request body JSON:
 {
     "email": "test@hotmail.com"
@@ -82,7 +82,7 @@ OR:
   "message": "Unkonw error to update user infor."
 }
 
-5. api to update one user's match status: localhost:3001/badminton/users/updateUserMatchStaus
+### 5. api to update one user's match status: localhost:3001/badminton/users/updateUserMatchStaus
 request body JSON:
 {
     "email": "test@hotmail.com"
@@ -100,7 +100,7 @@ OR:
   "message": "Unkonw error to update user infor."
 }
 
-6. api to update one user's basic information: localhost:3001/badminton/users/updateUserInfo
+### 6. api to update one user's basic information: localhost:3001/badminton/users/updateUserInfo
 request body JSON:
 {
   "email": "test@hotmaiel.com", //required
@@ -128,7 +128,7 @@ OR:
   "message": "Unkonw error to update user infor."
 }
 
-7. api to input invitation for single player: localhost:3001/badminton/gaming/inviteSinglePlayer
+### 7. api to input invitation for single player: localhost:3001/badminton/gaming/inviteSinglePlayer
 request body JSON:
 {
   "invitorEmail": "test191@hotmail.com",
@@ -155,7 +155,7 @@ OR:
   "message": "Not be able to find the invitee in the system."
 }
 
-8. api to input invitation for double player: localhost:3001/badminton/gaming/inviteDoublePlayer
+### 8. api to input invitation for double player: localhost:3001/badminton/gaming/inviteDoublePlayer
 request body JSON:
 {
 
@@ -194,7 +194,7 @@ OR:
   "message": "Not be able to invite same player to be your partner or opponent at the same time."
 }
 
-9. api to find players list from invitation record: localhost:3001/badminton/users/findPlayersRecord
+### 9. api to find players list from invitation record: localhost:3001/badminton/users/findPlayersRecord
 request body JSON:
 {
 "email": "test191@hotmail.com",
@@ -233,7 +233,7 @@ OR:
   "message": "User Not Found"
 }
 
-10. api to fetch this user's invitation notification: localhost:3001/badminton/gaming/getNotification
+### 10. api to fetch this user's invitation notification: localhost:3001/badminton/gaming/getNotification
 
 request body:
 {
@@ -262,7 +262,7 @@ OR:
   "message": "Not be able to find the user in the system."
 }
 
-11. api to add this user's match record: localhost:3001/badminton/users/addMatchHistory
+### 11. api to add this user's match record: localhost:3001/badminton/users/addMatchHistory
 for single playing format:
 request body: 
 {
@@ -307,7 +307,7 @@ response body:
   "message": "Missing your opponent's email."
 }
 
-12. api to fetch a user's match history: localhost:3001/badminton/users/getMatchHistory/:email
+### 12. api to fetch a user's match history: localhost:3001/badminton/users/getMatchHistory/:email
 
 response body:
 {
@@ -353,7 +353,7 @@ OR:
   "message": "User Not Found"
 }
 
-13. api to store AI training data into DB: localhost:3001/badminton/users/addAImodelData
+### 13. api to store AI training data into DB: localhost:3001/badminton/users/addAImodelData
 request body:
 {
   "email": "test@hotmail.com",
@@ -392,7 +392,7 @@ OR:
   "message": "User Not Found"
 }
 
-14. APi to fetch a user's AI training model data: localhost:3001/badminton/users/getAImodelData/test@hotmail.com
+### 14. APi to fetch a user's AI training model data: localhost:3001/badminton/users/getAImodelData/test@hotmail.com
 
 response body:
 {
@@ -453,3 +453,64 @@ OR:
   "statusCode": 404,
   "message": "User Not Found"
 }
+
+## ML Endpoints
+### 1. API to calculate elo changes for doubles games
+Request structure:
+```
+{
+    "t1p1Elo": float,
+    "t1p2Elo": float,
+    "t2p1Elo": float,
+    "t2p2Elo": float,
+    "s1": integer,
+    "s2": integer
+}
+```
+
+Response structure: 
+```
+{
+    "t1p1EloNew": float,
+    "t1p2EloNew": float,
+    "t2p1EloNew": float,
+    "t2p2EloNew": float
+}
+```
+
+Response example: 
+```
+{
+    "t1p1EloNew": 1742.8196868608447,
+    "t1p2EloNew": 1742.8196868608447,
+    "t2p1EloNew": 1256.1803131391553,
+    "t2p2EloNew": 1256.1803131391553
+}
+```
+
+### 2. API to calculate elo changes for singles games
+Request structure:
+```
+{
+    "p1Elo": float,
+    "p2Elo": float,
+    "s1": integer,
+    "s2": integer
+}
+```
+
+Response structure: 
+```
+{
+    "p1EloNew": float,
+    "p2EloNew": float,
+}
+```
+
+Response example: 
+```
+{
+    "p1EloNew": 1742.8196868608447,
+    "p2EloNew": 1742.8196868608447
+}
+```
