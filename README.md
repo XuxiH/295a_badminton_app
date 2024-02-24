@@ -465,7 +465,31 @@ OR:
 
 ## ML Endpoints
 ### 1. API to calculate elo changes for doubles games
-URL: GET localhost:8000/2p
+*URL: GET localhost:8000/2p*
+
+**This is used after a doubles match is reported to calculate the adjustments to the skill ratings of the players in that match.**
+
+*t1p1Elo --> team 1 player 1 original skillRating*
+
+*t1p2Elo --> team 1 player 2 original skillRating*
+
+*t2p1Elo --> team 2 player 1 original skillRating*
+
+*t2p2Elo --> team 2 player 2 original skillRating*
+
+*s1 --> score of team 1*
+
+*s2 --> score of team 2*
+
+*t1p1EloNew --> team 1 player 1 new skillRating*
+
+*t1p2EloNew --> team 1 player 2 new skillRating*
+
+*t2p1EloNew --> team 2 player 1 new skillRating*
+
+*t2p2EloNew --> team 2 player 2 new skillRating*
+
+
 
 Request structure:
 ```
@@ -501,6 +525,20 @@ Response example:
 
 ### 2. API to calculate elo changes for singles games
 URL: GET localhost:8000/1p
+
+**This is used after a singles match is reported to calculate the adjustments to the skill ratings of the players in that match.**
+
+*p1Elo --> player 1 original skillRating*
+
+*p2Elo --> player 2 original skillRating*
+
+*s1 --> score of player 1*
+
+*s2 --> score of player 2*
+
+*p1EloNew --> player 1 new skillRating*
+
+*p2EloNew --> player 2 new skillRating*
 
 Request structure:
 ```
