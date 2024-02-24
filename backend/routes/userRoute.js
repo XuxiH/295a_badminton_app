@@ -253,6 +253,7 @@ router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
       "opponentScore":opponentScore
     });
     userMatchHistoryObj.save();
+    //TODO: update the skill rating
     return res.status(200).json({ statusCode: 200,message: "Match history created for your single player format game." });
   }
   //TODO: if it is double players match, store, partner emial, two other opponents emails
@@ -267,6 +268,7 @@ router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
       "opponentScore":opponentScore
     });
     userMatchHistoryObj.save();
+    //TODO: update the skill rating
     return res.status(200).json({ statusCode: 200,message: "Match history created for your "+ playFormat +" player format game." });
   }
     
@@ -314,7 +316,7 @@ router.post('/addAImodelData', asyncHandler(async(req, res) =>{
 const options = {
   hostname: '127.0.0.1',
   port: 8000,
-  path: '/trainml?userEmail='+"bruceoconnor@sjsu.edu", //localhost:8000/trainml?userEmail=bruceoconnor@sjsu.edu 
+  path: '/trainml?userEmail='+userEmail, //localhost:8000/trainml?userEmail=bruceoconnor@sjsu.edu 
   method: 'GET',
 };
 
