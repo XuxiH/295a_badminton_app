@@ -12,7 +12,8 @@ load_dotenv()
 try:
     db = pymongo.MongoClient(os.getenv('MONGO_URI'))
     db.admin.command('ismaster')
-except:
+except Exception as error:
+    print("[ERROR] ", error)
     exit("Connection to MongoDB server failed, aborting...")
 print("MongoDB server connected successfully!")
 
@@ -32,7 +33,7 @@ async def onep(p1Elo: float, p2Elo: float, s1: int, s2: int):
             "p2EloNew": p2EloNew}
 
 @app.get("/2p") # calculate elo changes for 2v2
-async def onep(t1p1Elo: float, t1p2Elo: float, t2p1Elo: float, t2p2Elo: float, s1: int, s2: int):
+async def twop(t1p1Elo: float, t1p2Elo: float, t2p1Elo: float, t2p2Elo: float, s1: int, s2: int):
     t1p1EloNew, t1p2EloNew, t2p1EloNew, t2p2EloNew = calc2pGame(t1p1Elo, t1p2Elo, t2p1Elo, t2p2Elo, s1, s2)
     return {"t1p1EloNew": t1p1EloNew,
             "t1p2EloNew": t1p2EloNew,
