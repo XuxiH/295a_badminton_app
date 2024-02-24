@@ -314,8 +314,8 @@ router.post('/addAImodelData', asyncHandler(async(req, res) =>{
 const options = {
   hostname: '127.0.0.1',
   port: 8000,
-  path: '/api/data',
-  method: 'GET'
+  path: '/trainml?userEmail='+"bruceoconnor@sjsu.edu", //localhost:8000/trainml?userEmail=bruceoconnor@sjsu.edu 
+  method: 'GET',
 };
 
 const request = http.request(options, (res) => {
