@@ -1,6 +1,24 @@
 from fastapi import FastAPI
 from math import e
+import pymongo
+import pandas as pd
+from sys import exit
+from sklearn.linear_model import LogisticRegression
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+try:
+    db = pymongo.MongoClient(os.getenv('MONGO_URI'))
+    db.admin.command('ismaster')
+except:
+    exit("Connection to MongoDB server failed, aborting...")
+print("MongoDB server connected successfully!")
+
+
+
+# ====================================== FASTAPI ROUTES ==============================================
 app = FastAPI()
 
 @app.get("/")
@@ -20,6 +38,160 @@ async def onep(t1p1Elo: float, t1p2Elo: float, t2p1Elo: float, t2p2Elo: float, s
             "t1p2EloNew": t1p2EloNew,
             "t2p1EloNew": t2p1EloNew,
             "t2p2EloNew": t2p2EloNew}
+
+@app.get("/trainml") # request training of a user's recommendation model
+async def trainML(userEmail: str):
+    # pull data from user and mldata
+    mldata = db.badminton.mldata.find_one({"email": userEmail})
+    targetUser = db.badminton.users2.find_one({"email": userEmail})
+
+    if targetUser is None:
+        return f"[ERROR] {userEmail} could not be found."
+    if mldata is None:
+        return f"[ERROR] {userEmail} has no data in mldata."
+
+    # process users from choice list for pulling
+    chosen = []
+    notChosen = []
+    for choice in mldata['choices']:
+        if choice[2] == 0:
+            chosen.append(choice[0])
+            notChosen.append(choice[1])
+        else:
+            chosen.append(choice[1])
+            notChosen.append(choice[0])
+    
+    # pull choice list users and populate dataframe
+    choiceUserDF = pd.DataFrame(list(db.badminton.users2.find({"email": {"$in": chosen + notChosen}})))
+    # print("==========================CHOICE=============================")
+    # print(choiceUserDF)
+    
+    # generate comparison dataframe
+    comparisonDF = make_comparison(targetUser, choiceUserDF)
+    # print("==========================COMPARISON=============================")
+    # print(comparisonDF)
+    
+    # generate preference dataframe
+    preferenceDF = make_preference(mldata['choices'], comparisonDF)
+    # print("==========================PREFERENCE=============================")
+    # print(preferenceDF)
+
+    # train logreg model and extract weights
+    weights = runLR(preferenceDF)
+    # print("==========================WEIGHTS=============================")
+    # print(weights)
+
+    # store weights to mongodb
+    result = db.badminton.mldata.update_one({'_id': mldata['_id']}, {'$set': {'weights': weights}})
+    # print(result)
+    return f"[SUCCESS] model training completed for {userEmail}."
+     
+
+
+
+# ===================================== USER COMPARISON UTILS ===========================================
+def age_diff(row, user):
+    return abs(row['age'] - user['age'])
+
+def format_compat_legacy(row, user):
+    # 2 = format compatible
+    # 1 = they play the other 2 player format, but wrong gender
+    # 0 = they only play singles
+    if user['gender'] == row['gender'] and 'd' in row['format']:
+        return 2
+    elif user['gender'] != row['gender'] and 'm' in row['format']:
+        return 2
+    elif user['gender'] == row['gender'] and 'm' in row['format']:
+        return 1
+    elif user['gender'] != row['gender'] and 'd' in row['format']:
+        return 1
+    else:
+        return 0
+    
+def format_compat(row, user):
+    # returns number of compatible formats, and allows for partial matches
+
+    compat = 0
+    if user['gender'] == row['gender']: # same genders, so doubles
+        if 'd' in user['format'] and 'd' in row['format']:
+            compat += 1
+        elif ('m' in user['format'] or 'm' in row['format']) and ('d' in user['format'] or 'd' in row['format']): # partial match, one has doubles
+            compat += 0.75
+        elif 'm' in user['format'] and 'm' in row['format']: # partial match, both play mixed but not doubles
+            compat += 0.5
+        if 's' in user['format'] and 's' in row['format']: # perfect singles match
+            compat += 1
+    elif user['gender'] != row['gender']: # diff genders, so mixed
+        if 'm' in user['format'] and 'm' in row['format']:
+            compat += 1
+        elif ('d' in user['format'] or 'd' in row['format']) and ('m' in user['format'] or 'm' in row['format']): # partial match, one has mixed
+            compat += 0.75
+        elif 'd' in user['format'] and 'd' in row['format']: # partial match, both play doubles but not mixed
+            compat += 0.5
+        if 's' in user['format'] and 's' in row['format']: # opp. gender singles match
+            compat += 0.75
+
+    return compat
+
+def warehouse_dist(row, user, warehouse_dists): # unused???
+    # now uses precalculated warehouse_dists numpy array
+    return warehouse_dists[row['warehouse'], user['warehouse']]
+
+def style_compat(row, user):
+    if user['style'] == row['style']:
+        return 2
+    elif user['style'] == 'neutral' or row['style'] == 'neutral':
+        return 1
+    else:
+        return 0
+
+def rating_diff(row, user):
+    return abs(row['skillRating'] - user['skillRating'])
+
+def yoe_diff(row, user):
+    return abs(row['yearsOfExperience'] - user['yearsOfExperience'])
+
+def make_comparison(userDict, allUserDF):
+    comparisons = pd.DataFrame()
+    comparisons['email'] = allUserDF['email']
+    comparisons['age_diff'] = allUserDF.apply(age_diff, axis=1, user=userDict)
+    comparisons['yoe_diff'] = allUserDF.apply(yoe_diff, axis=1, user=userDict)
+    comparisons['format_compat'] = allUserDF.apply(format_compat, axis=1, user=userDict)
+    # comparisons['warehouse']
+    comparisons['style_compat'] = allUserDF.apply(style_compat, axis=1, user=userDict)
+    comparisons['rating_diff'] = allUserDF.apply(rating_diff, axis=1, user=userDict)
+    comparisons['onlineStatus'] = allUserDF['onlineStatus'].astype(int)
+    comparisons['matchStatus'] = allUserDF['matchStatus'].astype(int) 
+    return comparisons
+
+def make_preference(choices, comparisonDF):
+    # preferenceDF = pd.DataFrame(columns=['age_diff', 'yoe_diff', 'format_compat', 'style_compat', 'rating_diff', 'onlineStatus', 'matchStatus', 'target'])
+    preferenceSeries = []
+    for choice in choices:
+        u1 = comparisonDF[comparisonDF["email"] == choice[0]].iloc[0].drop("email")
+        u2 = comparisonDF[comparisonDF["email"] == choice[1]].iloc[0].drop("email")
+        diff = u2-u1
+        diff["target"] = choice[2]
+        preferenceSeries.append(diff)
+    return pd.DataFrame(preferenceSeries)
+
+def runLR(preferenceDF):
+    X = preferenceDF.drop("target", axis=1)
+    y = preferenceDF["target"]
+    model = LogisticRegression()
+    model.fit(X, y)
+    weights = {
+        "age_diff": model.coef_[0,0],
+        "yoe_diff": model.coef_[0,1],
+        "format_compat": model.coef_[0,2],
+        "style_compat": model.coef_[0,3],
+        "rating_diff": model.coef_[0,4],
+        "onlineStatus": model.coef_[0,5],
+        "matchStatus": model.coef_[0,6]
+    }
+    return weights
+    
+# def apply_weights(weights):
 
 # ===================================== ELO UTIL FUNCS =====================================
 def get2pUpsetMult(t1p1Elo, t1p2Elo, t2p1Elo, t2p2Elo, t1Score, t2Score, upsetConstant = 1):
