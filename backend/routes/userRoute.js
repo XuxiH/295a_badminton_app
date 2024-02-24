@@ -68,6 +68,7 @@ router.put('/updateUserInfo', asyncHandler(async(req, res) =>{
     let zipCode = req.body.zipCode;
     let userYOE = req.body.yearsOfExpereince;
     let playStyle = req.body.playStyle;
+    let playFormat = req.body.playFormat;
     let matchingDistance = req.body.matchingDistance;
     let yourStory = req.body.yourStory;
     user.gender = gender;
@@ -75,6 +76,7 @@ router.put('/updateUserInfo', asyncHandler(async(req, res) =>{
     user.zipCode = zipCode;
     user.yearsOfExpereince = userYOE;
     user.playStyle = playStyle;
+    user.playFormat = playFormat;
     user.matchingDistance = matchingDistance;
     user.yourStory = yourStory;
     try{
@@ -226,21 +228,21 @@ router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
   let partnerEmail = req.body.partnerEmail; 
   let opponentEmail = req.body.opponentEmail; //Pleae passed in array format
 
-  if(playFormat === 'Single' && opponentEmail.length !=1){
+  if(playFormat.toLowerCase() === 'single' && opponentEmail.length !=1){
     return res.status(404).json({ statusCode: 404,message: "Missing your opponent's email." }); 
   }
-  if((playFormat === 'Double' || playFormat === 'Mix')&& opponentEmail.length !=2){
+  if((playFormat.toLowerCase() === 'double' || playFormat.toLowerCase() === 'mix')&& opponentEmail.length !=2){
     return res.status(404).json({ statusCode: 404,message: "Missing your opponent's email." }); 
   }
 
-  if((playFormat === 'Double' || playFormat === 'Mix')){
+  if((playFormat.toLowerCase() === 'double' || playFormat.toLowerCase() === 'mix')){
     if(!partnerEmail){
       return res.status(404).json({ statusCode: 404,message: "Missing your partner's email." });   
     }
   }
 
   //TODO: if it is single match, store opponent email
-  if(playFormat === 'Single'){
+  if(playFormat.toLowerCase() === 'single'){
     let userMatchHistoryObj = new MatchHistory({
       "email": req.body.email,
       "date": date,
@@ -254,7 +256,7 @@ router.put('/addMatchHistory', asyncHandler(async(req, res) =>{
     return res.status(200).json({ statusCode: 200,message: "Match history created for your single player format game." });
   }
   //TODO: if it is double players match, store, partner emial, two other opponents emails
-  if(playFormat === 'Double' || playFormat === 'Mix'){
+  if(playFormat.toLowerCase() === 'double' || playFormat.toLowerCase() === 'mix'){
     let userMatchHistoryObj = new MatchHistory({
       "email": req.body.email,
       "date": date,

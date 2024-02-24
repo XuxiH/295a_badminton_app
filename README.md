@@ -112,7 +112,8 @@ request body JSON:
   "age": 24,
   "zipCode": "12345",
   "yearsOfExpereince" : 2,
-  "playStyle":"single",
+  "playStyle":"aggressive",
+  "playFormat": "single",
   "matchingDistance": 15,
   "yourStory": "i am testing"
 }
@@ -267,7 +268,7 @@ for single playing format:
 request body: 
 {
   "email":"test@hotmail.com",
-   "playFormat" : "Single",
+  "playFormat" : "Single",
   "date": "2024-09-01",
   "yourScore": 34,
   "opponentScore": 56,

@@ -8,6 +8,11 @@ const aiModelSchema = mongoose.Schema({
     choices:{
         type: Array,
         required: [true, "Choices is a required field"]
+    },
+    weights:{
+        type: Map,
+        // keys are always strings. You specify the type of values using `of`.
+        of: Number
     }
 },{
     timestamps:true
