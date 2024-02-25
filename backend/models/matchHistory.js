@@ -6,22 +6,27 @@ const matchHistorySchema = mongoose.Schema({
         required: [true, "Email is a required field"]
     },
     date:{
-        type: Date
+        type: Date,
+        required: [true, "Match Date is a required field"]
     },
     playFormat:{
-        type: String
+        type: String,
+        required: [true, "Play format is a required field"]
     },
     matchingPartners:{
         type: String
     },
     matchingOpponents:{
-        type: Array
+        type: Array,
+        required: [true, "Opponent is a required field"]
     },
     yourScore:{
-        type: Number
+        type: Number,
+        required: [true, "Score is a required field"]
     },
     opponentScore:{
-        type: Number
+        type: Number,
+        required: [true, "Score is a required field"]
     }
 },{
     timestamps:true
