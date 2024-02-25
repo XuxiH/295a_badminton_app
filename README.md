@@ -465,7 +465,9 @@ OR:
 
 ## ML Endpoints
 ### 1. API to calculate elo changes for doubles games
-*URL: GET localhost:8000/2p*
+URL: ```GET localhost:8000/2p```
+
+Uses URL query parameters, as in: ```http://localhost:8000/1p?p1Elo=2000&p2Elo=1000&s1=3&s2=21```
 
 **This is used after a doubles match is reported to calculate the adjustments to the skill ratings of the players in that match.**
 
@@ -524,7 +526,9 @@ Response example:
 ```
 
 ### 2. API to calculate elo changes for singles games
-URL: GET localhost:8000/1p
+URL: ```GET localhost:8000/1p```
+
+Uses URL query parameters, as in: ```localhost:8000/2p?t1p1Elo=1678.0&t1p2Elo=1678.0&t2p1Elo=1321.0&t2p2Elo=1321.0&s1=21&s2=0```
 
 **This is used after a singles match is reported to calculate the adjustments to the skill ratings of the players in that match.**
 
@@ -567,7 +571,9 @@ Response example:
 ```
 
 ### 3. API to request the training of a user's preference model
-URL: GET localhost:8000/trainml
+URL: ```GET localhost:8000/trainml```
+
+Uses URL query parameters, as in: ```localhost:8000/trainml?userEmail=bruceoconnor@sjsu.edu```
 
 Request structure:
 ```
