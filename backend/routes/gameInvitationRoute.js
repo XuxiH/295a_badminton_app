@@ -124,8 +124,9 @@ router.post('/inviteDoublePlayer', asyncHandler(async(req, res) =>{
 }));
 
 //api to get gaming invitation alerts
-router.get('/getNotification', asyncHandler(async(req, res) =>{
-    let myEmail = req.body.email;   
+router.get('/getNotification/:myEmail', asyncHandler(async(req, res) =>{
+    let {myEmail} = req.params;   
+    console.log("User is, ", myEmail)
     if(!myEmail){
         return res.status(404).json({ statusCode: 404,message: "Please provide an valid email." }); 
     }

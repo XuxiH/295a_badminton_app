@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const _ = require('underscore');
 let isEmpty = _.isEmpty;
 let without = _.without;
+let each = _.each;
 //api to fetch one user by his email
 router.get('/email/:email', asyncHandler(async(req, res) =>{
   const {email} = req.params;
@@ -20,6 +21,26 @@ router.get('/email/:email', asyncHandler(async(req, res) =>{
     }
     
     res.status(404).json({statusCode: 404,message: 'user not found'});
+
+}));
+
+//APi to get random 20 users from DB
+router.get('/randomUsers', asyncHandler(async(req, res) =>{
+  
+  let usersArr = await User.aggregate([
+    { $sample: { size: 20 } }
+  ]);
+
+  let userEmailsArr =[];
+    if(usersArr){
+      each(usersArr,function(user){
+        userEmailsArr.push(user.email);
+      });
+      
+        return res.status(200).json({statusCode: 200,message: 'Successfully Fetch 20 users!',body:userEmailsArr});
+    }
+    
+    res.status(404).json({statusCode: 404,message: 'Unknown error to access DB.'});
 
 }));
 
@@ -161,7 +182,7 @@ router.post('/AdminLogin', asyncHandler(async(req, res) =>{
 }));
 
 //api for finding players information from invitation history
-router.get('/findPlayersRecord', asyncHandler(async(req, res) =>{
+router.post('/findPlayersRecord', asyncHandler(async(req, res) =>{
   let userEmail = req.body.email;
   const user = await Invitation.find({invitorEmail: userEmail});
 

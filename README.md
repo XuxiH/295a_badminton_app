@@ -196,11 +196,12 @@ OR:
 }
 
 ### 9. api to find players list from invitation record: localhost:3001/badminton/users/findPlayersRecord
+POST call
 request body JSON:
 {
 "email": "test191@hotmail.com",
-"gamingDate": "2023-10-27",
-"gameStartTime":"10:20"
+"gamingDate": "2023-10-27", //Date type
+"gameStartTime":"10:20", //Date Type
 }
 response JSON:
 Double players gaming response: 
@@ -234,12 +235,7 @@ OR:
   "message": "User Not Found"
 }
 
-### 10. api to fetch this user's invitation notification: localhost:3001/badminton/gaming/getNotification
-
-request body:
-{
-  "email":"test19@hotmail.com"
-}
+### 10. api to fetch this user's invitation notification: localhost:3001/badminton/gaming/getNotification/test19@hotmail.com
 
 response body:
 {
@@ -358,36 +354,13 @@ OR:
 request body:
 {
   "email": "test@hotmail.com", //required field
-  "choices": [ //required field
-    {
-    "1": ["u1@gmail.com"],
-    "2": ["u2@gmail.com"],
-    "choice": "1"
-    },
-    {
-    "1": ["u1@gmail.com","u2@gmail.com"],
-    "2": ["u2@gmail.com","u2@gmail.com"],
-    "choice": "1"
-    },
-    {
-    "1": ["u1@gmail.com"],
-    "2": ["u2@gmail.com"],
-    "choice": "1"
-    },
-    {
-    "1": ["u1@gmail.com","u2@gmail.com"],
-    "2": ["u2@gmail.com","u2@gmail.com"],
-    "choice": "1"
-    }
-  ],
-  "weights":{ //This field will need to be inserted from ML end
-    "age_diff":-0.5414381889533985,
-    "yoe_diff":-0.42705239244499316,
-    "format_compat": 0.08391591231691248,
-    "style_compat": -0.42429159089896257,
-    "rating_diff":-0.009866942037373792,
-    "onlineStatus":0.10385781902388118,
-    "matchStatus":-0.6471027957443989
+  "choices": [, //required field
+    ["u1@gmail.com","u2@gmail.com",0],
+    ["u1@gmail.com","u2@gmail.com",1],
+    ["u1@gmail.com","u2@gmail.com",0],
+    ["u1@gmail.com","u2@gmail.com",1],
+    ["u1@gmail.com","u2@gmail.com",1]
+  ]
 }
 
 response body:
@@ -401,59 +374,52 @@ OR:
   "message": "User Not Found"
 }
 
-### 14. APi to fetch a user's AI training model data: localhost:3001/badminton/users/getAImodelData/test@hotmail.com
+### 14. APi to fetch a user's AI training model data: localhost:3001/badminton/users/getAImodelData/test12340226@gmail.com
 
-response body:
 {
   "statusCode": 200,
-  "message": "Successfully get AI training data for user, test@hotmail.com",
+  "message": "Successfully get AI training data for user, test12340226@gmail.com",
   "body": {
-    "_id": "65724052dd346e6659e67767",
-    "email": "test@hotmail.com",
+    "_id": "65d9931006dea9ce811dc370",
+    "email": "test12340226@gmail.com",
     "choices": [
-      {
-        "1": [
-          "u1@gmail.com"
-        ],
-        "2": [
-          "u2@gmail.com"
-        ],
-        "choice": "1"
-      },
-      {
-        "1": [
-          "u1@gmail.com",
-          "u2@gmail.com"
-        ],
-        "2": [
-          "u2@gmail.com",
-          "u2@gmail.com"
-        ],
-        "choice": "1"
-      },
-      {
-        "1": [
-          "u1@gmail.com"
-        ],
-        "2": [
-          "u2@gmail.com"
-        ],
-        "choice": "1"
-      },
-      {
-        "1": [
-          "u1@gmail.com",
-          "u2@gmail.com"
-        ],
-        "2": [
-          "u2@gmail.com",
-          "u2@gmail.com"
-        ],
-        "choice": "1"
-      }
+      [
+        "u1@gmail.com",
+        "u2@gmail.com",
+        0
+      ],
+      [
+        "u1@gmail.com",
+        "u2@gmail.com",
+        1
+      ],
+      [
+        "u1@gmail.com",
+        "u2@gmail.com",
+        0
+      ],
+      [
+        "u1@gmail.com",
+        "u2@gmail.com",
+        1
+      ],
+      [
+        "u1@gmail.com",
+        "u2@gmail.com",
+        1
+      ]
     ],
-    "createdAt": "2023-12-07T21:59:46.524Z",
-    "updatedAt": "2023-12-07T21:59:46.524Z",
+    "weights": {
+      "age_diff": -0.5414381889533985,
+      "yoe_diff": -0.42705239244499316,
+      "format_compat": 0.08391591231691248,
+      "style_compat": -0.42429159089896257,
+      "rating_diff": -0.009866942037373792,
+      "onlineStatus": 0.10385781902388118,
+      "matchStatus": -0.6471027957443989
+    },
+    "createdAt": "2024-02-24T06:56:16.298Z",
+    "updatedAt": "2024-02-24T06:56:16.298Z",
     "__v": 0
   }
 }
@@ -462,6 +428,39 @@ OR:
   "statusCode": 404,
   "message": "User Not Found"
 }
+
+### 15. APi to fetch 20 users's email: localhost:3001/badminton/users/randomUsers
+
+GET call 
+response body:
+{
+  "statusCode": 200,
+  "message": "Successfully Fetch 20 users!",
+  "body": [
+    "karmawilkerson@sjsu.edu",
+    "keithpowell@sjsu.edu",
+    "elainehuskey@sjsu.edu",
+    "michaelkiefer@sjsu.edu",
+    "melvinfrick@sjsu.edu",
+    "cheryldunham@sjsu.edu",
+    "elbabridges@sjsu.edu",
+    "charlotteheath@sjsu.edu",
+    "joewolfgang@sjsu.edu",
+    "eduardolombardo@sjsu.edu",
+    "peterclark@sjsu.edu",
+    "dorothyhanson@sjsu.edu",
+    "meganmoret@sjsu.edu",
+    "christophersliva@sjsu.edu",
+    "eugenemarks@sjsu.edu",
+    "colbyselleck@sjsu.edu",
+    "marywhite@sjsu.edu",
+    "kirkclement@sjsu.edu",
+    "martyvogel@sjsu.edu",
+    "brittanythao@sjsu.edu"
+  ]
+}
+
+
 
 ## ML Endpoints
 ### 1. API to calculate elo changes for doubles games
