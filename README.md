@@ -5,7 +5,7 @@
 request body JSON:{
     "name",(required)
     "zipCode",(optional)
-    "yearsOfExpereince",(optional)
+    "yearsOfExperience",(optional)
     "email",(required)
     "password".(required)
 }
@@ -14,7 +14,8 @@ response JSON:
 {   statusCode: 200, message: "Account Created" }
 OR
 {
-    statusCode: 404,message: "Unkown error to create user account. Please try again later." 
+  "statusCode": 404,
+  "message": "Please provide required information to register an account. User validation failed: password: Password is a required field"
 }
 
 ### 2. User login: localhost:3001/badminton/users/login
@@ -45,11 +46,11 @@ response JSON:
     "name": "optionalTesting",
     "skillRating": 1500,
     "onlineStatus": false,
-    "matchStaus": false,
+    "matchStatus": false,
     "createdAt": "2023-11-30T07:21:39.224Z",
     "updatedAt": "2023-12-06T21:25:59.536Z",
     "__v": 0,
-    "yearsOfExpereince": 2,
+    "yearsOfExperience": 2,
     "zipCode": "12345",
     "age": 24,
     "gender": "F",
@@ -82,7 +83,7 @@ OR:
   "message": "Unkonw error to update user infor."
 }
 
-### 5. api to update one user's match status: localhost:3001/badminton/users/updateUserMatchStaus
+### 5. api to update one user's match status: localhost:3001/badminton/users/updateUserMatchStatus
 request body JSON:
 {
     "email": "test@hotmail.com"
@@ -106,12 +107,12 @@ request body JSON:
   "email": "test@hotmaiel.com", //required
   "name": "optional", //optional field
   "zipCode": "90876", //optioanl field
-  "yearsOfExpereince": 2, //optional field
+  "yearsOfExperience": 2, //optional field
   "skillRating": 1800 //optional field
   "gender" : "F",
   "age": 24,
   "zipCode": "12345",
-  "yearsOfExpereince" : 2,
+  "yearsOfExperience" : 2,
   "playStyle":"aggressive",
   "playFormat": "single",
   "matchingDistance": 15,
@@ -135,9 +136,9 @@ request body JSON:
   "invitorEmail": "test191@hotmail.com",
   "inviteeEmail":"test19@hotmail.com",
   "phoneNumber":"12323434325",
-  "gamingDate":"gamingDate",
-  "gameStartTime":"gameStartTime",
-  "gameEndTime":"gameEndTime",
+  "gamingDate":"2024-12-03",  //String type passed in this format 'YYYY-MM-DD'
+  "gameStartTime":"08:20",  //String Type passed in this format 'hh:mm'
+  "gameEndTime":"10:20",  //String Type passed in this format 'hh:mm'
   "address":"address",
   "zipCode":"567568756"     
 }
@@ -165,9 +166,9 @@ request body JSON:
   "inviteePlayer1Email":"test@hotmail.com",
   "inviteePlayer2Email": "test2@hotmail.com",
   "phoneNumber":"12323434325",
-  "gamingDate":"gamingDate",
-  "gameStartTime":"gameStartTime",
-  "gameEndTime":"gameEndTime",
+  "gamingDate":"2024-12-20", //String type passed in this format 'YYYY-MM-DD'
+  "gameStartTime":"10:20", //String Type passed in this format 'hh:mm'
+  "gameEndTime":"13:20", //String Type passed in this format 'hh:mm'
   "address":"address",
   "zipCode":"567568756"
       
@@ -200,8 +201,8 @@ POST call
 request body JSON:
 {
 "email": "test191@hotmail.com",
-"gamingDate": "2023-10-27", //Date type
-"gameStartTime":"10:20", //Date Type
+"gamingDate": "2023-10-27", //String type passed in this format 'YYYY-MM-DD'
+"gameStartTime":"10:20", //String Type passed in this format 'hh:mm'
 }
 response JSON:
 Double players gaming response: 
@@ -265,7 +266,7 @@ request body:
 {
   "email":"test@hotmail.com",
   "playFormat" : "Single",
-  "date": "2024-09-01",
+  "date": "2024-09-01", //String type passed in this format 'YYYY-MM-DD'
   "yourScore": 34,
   "opponentScore": 56,
   "opponentEmail": ["test26768@hotmail.com"] //This must pass in as array

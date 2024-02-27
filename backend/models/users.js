@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     zipCode: {
       type: String,
     },
-    yearsOfExpereince: {
+    yearsOfExperience: {
       type: Number,
     },
     skillRating: {
@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    matchStaus: {
+    matchStatus: {
       type: Boolean,
       default: false,
     },

@@ -19,14 +19,16 @@ const invitationSchema = mongoose.Schema({
         type: String
     },
     gamingDate:{
-        type: String, //TODO: need to change to Date type
+        type: Date, 
         required:[true, "Game date is a required field"]
     },
     gameStartTime:{
-        type: String, //TODO: need to change to Date type
+        type: String, 
+        required:[true, "Game Start time is a required field"]
     },
     gameEndTime:{
-        type: String, //TODO: need to change to Date Type
+        type: String, 
+        
     },
     address:{
         type: String,
