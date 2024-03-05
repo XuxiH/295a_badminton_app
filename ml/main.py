@@ -18,7 +18,6 @@ except Exception as error:
 print("MongoDB server connected successfully!")
 
 
-
 # ====================================== FASTAPI ROUTES ==============================================
 app = FastAPI()
 
@@ -88,33 +87,55 @@ async def trainML(userEmail: str):
     return f"[SUCCESS] model training completed for {userEmail}."
 
 # recommendation routes
-@app.get("/rec1user")
-async def recOne(userEmail: str):
+@app.get("/recsingles")
+async def recSingles(userEmail: str):
     # retrieve target user and their preference model weights
     targetUser = db.badminton.users2.find_one({"email": userEmail})
     targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
 
-    # retrieve entire userbase
-    userbaseDF = pd.DataFrame(list(db.badminton.users2.find({"email": {"$ne": "bruceoconnor@sjsu.edu"}})))
+    top8 = get_top_8(targetUser, targetUserMLData, [userEmail])
 
-    # generate comparison dataframe
-    comparisonDF = make_comparison(targetUser, userbaseDF)
+    return top8
 
-    # apply weights
-    scoreDF = comparisonDF.loc[:,['email']]
-    scoreDF["pref_score"] = comparisonDF.apply(apply_weights, axis=1, weights=targetUserMLData)
-    scoreDF = scoreDF.sort_values(by=['pref_score'], ascending=False)
-    print(scoreDF.iloc[0:8,0].to_list())
+@app.get("/recdoubles1")
+async def recDoubles1(userEmail: str, partnerEmail: str):
+    targetUser = db.badminton.users2.find_one({"email": userEmail})
+    partnerUser = db.badminton.users2.find_one({"email": partnerEmail})
+    targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
+    partnerUserMLData = db.badminton.mldata.find_one({"email": partnerEmail}, {"weights": 1})['weights']
+
+    # need to average out the two users into one target user in order to take both sets of preferences into account
+    avgUser = get_average_user(targetUser, partnerUser)
+
+    # average out the preference model weights to find someone who appeals to both partners
+    avgWeightUserMLData = get_average_ml_data(targetUserMLData, partnerUserMLData)
+
+    # retrive top 8 scoring users
+    top8 = get_top_8(avgUser, avgWeightUserMLData, [userEmail, partnerEmail])
     
+    return top8
 
-    return scoreDF.to_json()
+@app.get("/recdoubles2")
+async def recDoubles2(userEmail: str, partnerEmail: str, oppEmail: str):
+    targetUser = db.badminton.users2.find_one({"email": userEmail})
+    partnerUser = db.badminton.users2.find_one({"email": partnerEmail})
+    oppUser = db.badminton.users2.find_one({"email": oppEmail})
+    targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
+    partnerUserMLData = db.badminton.mldata.find_one({"email": partnerEmail}, {"weights": 1})['weights']
+    oppUserMLData = db.badminton.mldata.find_one({"email": oppEmail}, {"weights": 1})['weights']
 
+    # get average user, but give the opponent double the weight since they will be playing with this recommendation
+    avgUser = get_average_user(targetUser, partnerUser)
+    avgUser = get_average_user(avgUser, oppUser)
 
-@app.get("/rec2users")
-async def recTwo(userEmail: str, partnerEmail: str):
-    return 0
+    # average out the preference model weights to find someone who appeals to both partners and opponent, biased toward opponent
+    avgWeightUserMLData = get_average_ml_data(targetUserMLData, partnerUserMLData)
+    avgWeightUserMLData = get_average_ml_data(avgWeightUserMLData, oppUserMLData)
 
+    # retrive top 8 scoring users
+    top8 = get_top_8(avgUser, avgWeightUserMLData, [userEmail, partnerEmail, oppEmail])
 
+    return top8
 
 
 # ===================================== USER COMPARISON UTILS ===========================================
@@ -179,10 +200,28 @@ def rating_diff(row, user):
 def yoe_diff(row, user):
     return abs(row['yearsOfExperience'] - user['yearsOfExperience'])
 
+def gender_diff(row, user):
+    if row["gender"] == "female":
+        rowGend = -1
+    else:
+        rowGend = 1
+    
+    if user["gender"] == "female":
+        userGend = -1
+    else:
+        userGend = 1
+
+    # if result is 0, user and row are same unknown gender
+    # if result is 2, user is male and row is female
+    # if result is -2, user is female and row is male
+    
+    return userGend - rowGend
+
 def make_comparison(userDict, allUserDF):
     comparisons = pd.DataFrame()
     comparisons['email'] = allUserDF['email']
     comparisons['age_diff'] = allUserDF.apply(age_diff, axis=1, user=userDict)
+    comparisons['gender_diff'] = allUserDF.apply(gender_diff, axis=1, user=userDict)
     comparisons['yoe_diff'] = allUserDF.apply(yoe_diff, axis=1, user=userDict)
     comparisons['format_compat'] = allUserDF.apply(format_compat, axis=1, user=userDict)
     # comparisons['warehouse']
@@ -210,12 +249,13 @@ def runLR(preferenceDF):
     model.fit(X, y)
     weights = {
         "age_diff": model.coef_[0,0],
-        "yoe_diff": model.coef_[0,1],
-        "format_compat": model.coef_[0,2],
-        "style_compat": model.coef_[0,3],
-        "rating_diff": model.coef_[0,4],
-        "onlineStatus": model.coef_[0,5],
-        "matchStatus": model.coef_[0,6]
+        "gender_diff": model.coef_[0,1],
+        "yoe_diff": model.coef_[0,2],
+        "format_compat": model.coef_[0,3],
+        "style_compat": model.coef_[0,4],
+        "rating_diff": model.coef_[0,5],
+        "onlineStatus": model.coef_[0,6],
+        "matchStatus": model.coef_[0,7]
     }
     return weights
     
@@ -223,6 +263,67 @@ def apply_weights(row, weights):
     total = sum([row[key] * weights[key] for key in weights.keys()])
     return total
 
+def get_average_user(user1, user2):
+    averageUser = {}
+
+    # age
+    averageUser["age"] = (user1["age"] + user2["age"]) / 2
+
+    # gender
+    if user1["gender"] == user2["gender"]:
+        averageUser["gender"] = user1["gender"]
+    else:
+        averageUser["gender"] = "male"  # THIS IS PROBLEMATIC, NEED TO FIX IN THE FUTURE
+
+    # format
+    averageFormat = user1["format"] + user2["format"]
+    averageUser["format"] = "".join(set(averageFormat))
+
+    # yoe
+    averageUser["yearsOfExperience"] = (user1["yearsOfExperience"] + user2["yearsOfExperience"]) / 2
+
+    # style
+    if user1["style"] == user2["style"]:
+        averageUser["style"] = user1["style"]
+    elif "aggressive" in [user1["style"], user2["style"]] and "defensive" in [user1["style"], user2["style"]]:
+        averageUser["style"] = "neutral"
+    elif "aggressive" in [user1["style"], user2["style"]]:
+        averageUser["style"] = "aggressive"
+    else:
+        averageUser["style"] = "defensive"
+
+    # rating
+    averageUser["skillRating"] = (user1["skillRating"] + user2["skillRating"]) / 2
+
+    # online status
+    averageUser["onlineStatus"] = user1["onlineStatus"] or user2["onlineStatus"]
+
+    # match status
+    averageUser["matchStatus"] = user1["matchStatus"] or user2["matchStatus"]
+
+    return averageUser
+
+def get_average_ml_data(weights1, weights2):
+    avgWeights = {}
+    for key in weights1.keys():
+        avgWeights[key] = (weights1[key] + weights2[key]) / 2
+
+    return avgWeights
+
+def get_top_8(user, userMLData, exc_emails):
+    # retrieve entire userbase
+    userbaseDF = pd.DataFrame(list(db.badminton.users2.find({"email": {"$nin": exc_emails}})))
+
+    # generate comparison dataframe
+    comparisonDF = make_comparison(user, userbaseDF)
+
+    # apply weights
+    scoreDF = comparisonDF.loc[:,['email']]
+    scoreDF["pref_score"] = comparisonDF.apply(apply_weights, axis=1, weights=userMLData)
+    scoreDF = scoreDF.sort_values(by=['pref_score'], ascending=False)
+    top8 = scoreDF.iloc[0:8,0].to_list()
+    
+    return top8
 
 
 # ===================================== ELO UTIL FUNCS =====================================
