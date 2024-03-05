@@ -86,7 +86,34 @@ async def trainML(userEmail: str):
     result = db.badminton.mldata.update_one({'_id': mldata['_id']}, {'$set': {'weights': weights}})
     # print(result)
     return f"[SUCCESS] model training completed for {userEmail}."
-     
+
+# recommendation routes
+@app.get("/rec1user")
+async def recOne(userEmail: str):
+    # retrieve target user and their preference model weights
+    targetUser = db.badminton.users2.find_one({"email": userEmail})
+    targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
+
+    # retrieve entire userbase
+    userbaseDF = pd.DataFrame(list(db.badminton.users2.find({"email": {"$ne": "bruceoconnor@sjsu.edu"}})))
+
+    # generate comparison dataframe
+    comparisonDF = make_comparison(targetUser, userbaseDF)
+
+    # apply weights
+    scoreDF = comparisonDF.loc[:,['email']]
+    scoreDF["pref_score"] = comparisonDF.apply(apply_weights, axis=1, weights=targetUserMLData)
+    scoreDF = scoreDF.sort_values(by=['pref_score'], ascending=False)
+    print(scoreDF.iloc[0:8,0].to_list())
+    
+
+    return scoreDF.to_json()
+
+
+@app.get("/rec2users")
+async def recTwo(userEmail: str, partnerEmail: str):
+    return 0
+
 
 
 
@@ -192,7 +219,11 @@ def runLR(preferenceDF):
     }
     return weights
     
-# def apply_weights(weights):
+def apply_weights(row, weights):
+    total = sum([row[key] * weights[key] for key in weights.keys()])
+    return total
+
+
 
 # ===================================== ELO UTIL FUNCS =====================================
 def get2pUpsetMult(t1p1Elo, t1p2Elo, t2p1Elo, t2p2Elo, t1Score, t2Score, upsetConstant = 1):
