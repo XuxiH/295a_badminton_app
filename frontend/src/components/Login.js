@@ -36,9 +36,9 @@ function Login() {
       const result = await login(user);
       if (result && result.statusCode == 200) {
         setWarning({ visible: false, message: "" });
-        await updateUserOnlineStatus({ email: user.email });
+        // await updateUserOnlineStatus({ email: user.email });
         sessionStorage.setItem("email", user.email);
-        navigate("/main");
+        navigate("/home");
       }
     } catch (error) {
       setWarning({ visible: true, message: error && error.message });

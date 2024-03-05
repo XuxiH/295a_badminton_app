@@ -73,8 +73,9 @@ function Signup() {
       });
       if (result && result.statusCode == 200) {
         setWarning({ visible: false, message: "" });
-        await updateUserOnlineStatus({ email: user.email });
+        // await updateUserOnlineStatus({ email: user.email });
         sessionStorage.setItem("email", user.email);
+        sessionStorage.setItem("username", user.name);
         navigate("/firstvisit");
       } else {
         setWarning({ visible: true, message: result.message });
