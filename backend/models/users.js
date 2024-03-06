@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is a required field"],
+      maxlength: 60
     },
     name: {
       type: String,
@@ -76,7 +77,7 @@ const userSchema = new mongoose.Schema(
 
 //schema middleware to apply before saving
 userSchema.pre("save", async function (next) {
-  this.password = await bcrypt.hash(this.password, 12);
+  this.password = await bcrypt.hash(this.password, 10);
   this.passwordConfirm = undefined;
   next();
 });
