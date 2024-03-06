@@ -179,34 +179,24 @@ router.post(
     let error;
 
 
-    await bcrypt
-      .compare(req.body.password, user1[0].password)
-      .then((res) => {
-        console.log("in bcrypt response", res);
-        if (res) {
-          userName = user1[0].name;
-        }
-      })
-      .catch((err) => {
-        error = err;
-        console.log("error, ", err);
-      });
+    // await bcrypt
+    //   .compare(req.body.password, user1[0].password)
+    //   .then((res) => {
+    //     console.log("in bcrypt response", res);
+    //     if (res) {
+    //       userName = user1[0].name;
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     error = err;
+    //     console.log("error, ", err);
+    //   });
 
     
 // Comparing the plain text password to the hashed password
 
 
-    if (!error && userName) {
-      return res
-        .status(200)
-        .json({ statusCode: 200, message: "Welcome " + userName });
-    } else {
-      return res
-        .status(404)
-        .json({ statusCode: 404, message: "Invalid email/password!" });
-    }
-
-    // if (req.body.password === user1[0].password) {
+    // if (!error && userName) {
     //   return res
     //     .status(200)
     //     .json({ statusCode: 200, message: "Welcome " + userName });
@@ -215,6 +205,16 @@ router.post(
     //     .status(404)
     //     .json({ statusCode: 404, message: "Invalid email/password!" });
     // }
+
+    if (req.body.password === user1[0].password) {
+      return res
+        .status(200)
+        .json({ statusCode: 200, message: "Welcome " + userName });
+    } else {
+      return res
+        .status(404)
+        .json({ statusCode: 404, message: "Invalid email/password!" });
+    }
 
 
 
