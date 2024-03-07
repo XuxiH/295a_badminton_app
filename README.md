@@ -591,3 +591,45 @@ Response example:
 ```
 "[SUCCESS] model training completed for bruceoconnor@sjsu.edu."
 ```
+
+### 4. API to request recommendations for partners or singles opponents
+URL : ```GET localhost:8000/recSingles```
+
+Uses URL query parameters, as in: ```localhost:8000/recsingles?userEmail=bruceoconnor@sjsu.edu```
+
+Parameters:
+
+- userEmail
+
+Response: 
+
+- array of 8 other user emails as recommendations
+
+### 5. API to request first doubles opponent
+URL : ```GET localhost:8000/recDoubles1```
+
+Uses URL query parameters, as in: ```localhost:8000/recdoubles1?userEmail=bruceoconnor@sjsu.edu&partnerEmail=buddyreeder@sjsu.edu```
+
+Parameters:
+
+- userEmail
+- partnerEmail
+
+Response: 
+
+- array of 8 other user emails as recommendations
+
+### 6. API to request second doubles opponent
+URL : ```GET localhost:8000/recDoubles2```
+
+Uses URL query parameters, as in: ```localhost:8000/recdoubles2?userEmail=bruceoconnor@sjsu.edu&partnerEmail=buddyreeder@sjsu.edu&oppEmail=charlottepayne@sjsu.edu```
+
+Parameters:
+
+- userEmail
+- partnerEmail
+- oppEmail
+
+Response: 
+
+- array of 8 other user emails as recommendations
