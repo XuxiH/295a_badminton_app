@@ -9,13 +9,28 @@ import Questionair from "./pages/questionair";
 import Home from "./pages/home";
 import Recommendations from "./pages/recommendations";
 import Matches from "./pages/matches";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  redirect,
+} from "react-router-dom";
+
+const loader = () => {
+  const useremail = sessionStorage.getItem("email");
+  const username = sessionStorage.getItem("username");
+  if (useremail && username) {
+    return true;
+  } else {
+    return redirect("/login");
+  }
+};
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
       element: <MainLayout />,
+      loader: loader,
       children: [
         {
           path: "home",

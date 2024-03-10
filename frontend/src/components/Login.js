@@ -6,7 +6,7 @@ import Image from "react-bootstrap/Image";
 import Alert from "react-bootstrap/Alert";
 import logo from "../assets/images/logo.svg";
 import { useNavigate } from "react-router-dom";
-import { login, updateUserOnlineStatus } from "../api";
+import { login, updateUserOnlineStatus, getUserInfo } from "../api";
 import "./Login.css";
 
 function Login() {
@@ -38,7 +38,12 @@ function Login() {
         setWarning({ visible: false, message: "" });
         // await updateUserOnlineStatus({ email: user.email });
         sessionStorage.setItem("email", user.email);
-        navigate("/home");
+        const userResult = await getUserInfo({ email: user.email });
+        console.log("result is : ", userResult);
+        if (userResult && userResult.statusCode == 200) {
+          sessionStorage.setItem("username", userResult.body.name);
+          navigate("/home");
+        }
       }
     } catch (error) {
       setWarning({ visible: true, message: error && error.message });
@@ -59,7 +64,7 @@ function Login() {
           </div>
           <h1 className="h3 mb-3 fw-normal text-center">Login</h1>
           <Form.Group className="mb-3" controlId="exampleForm.username">
-            <Form.Label>Username</Form.Label>
+            <Form.Label>Email</Form.Label>
             <Form.Control
               type="text"
               value={user.email}
