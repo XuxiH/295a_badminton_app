@@ -19,3 +19,7 @@ export const addMatchHistory = (data) =>
   put("/badminton/users/addMatchHistory/", data);
 export const getMatchHistory = (data) =>
   get(`/badminton/users/getMatchHistory/${data.email}`);
+export const inviteSinglePlayer = (data) =>
+  post("/badminton/gaming/inviteSinglePlayer/", data);
+export const inviteDoublePlayer = (data) =>
+  post("/badminton/gaming/inviteDoublePlayer/", data);
