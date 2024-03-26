@@ -15,3 +15,11 @@ export const updateUserInfo = (data) =>
 export const getRandomUsers = () => get(`/badminton/users/randomUsers`);
 export const addAImodelData = (data) =>
   post("/badminton/users/addAImodelData/", data);
+export const addMatchHistory = (data) =>
+  put("/badminton/users/addMatchHistory/", data);
+export const getMatchHistory = (data) =>
+  get(`/badminton/users/getMatchHistory/${data.email}`);
+export const inviteSinglePlayer = (data) =>
+  post("/badminton/gaming/inviteSinglePlayer/", data);
+export const inviteDoublePlayer = (data) =>
+  post("/badminton/gaming/inviteDoublePlayer/", data);

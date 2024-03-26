@@ -3,8 +3,7 @@ import { Card, Button, Image } from "react-bootstrap";
 import "./Card.css";
 
 export const SingleCardComponent = (props) => {
-  const { invite, onInviteClick } = props;
-  const [user, setUser] = useState({ name: "Jennifer Lee", status: 0 });
+  const { invite, user = { name: "Jennifer Lee", status: 0 }, onInviteClick } = props;
   return (
     <Card
       style={{
@@ -27,15 +26,14 @@ export const SingleCardComponent = (props) => {
               </div>
               <div className="mb-2 text-muted">
                 <span style={{ fontSize: 12 }}>
-                  YOE:2 | Style: All around | 95604
+                  YOE:{user.yearsOfExperience} | Style: {user.style} | {user.zipCode}
                 </span>
               </div>
             </div>
           </div>
         </Card.Title>
         <Card.Text>
-          Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-          nonumy eirmod tempor invidunt ut labore et.
+          {user.yourStory}
         </Card.Text>
         {invite && (
           <div className="text-center">

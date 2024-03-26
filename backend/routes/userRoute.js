@@ -174,21 +174,39 @@ router.post(
         .status(404)
         .json({ statusCode: 404, message: "User Not Found" });
     }
+    
     let userName;
     let error;
-    await bcrypt
-      .compare(req.body.password, user1[0].password)
-      .then((res) => {
-        console.log(res);
-        if (res) {
-          userName = user1[0].name;
-        }
-      })
-      .catch((err) => {
-        error = err;
-      });
 
-    if (!error && userName) {
+
+    // await bcrypt
+    //   .compare(req.body.password, user1[0].password)
+    //   .then((res) => {
+    //     console.log("in bcrypt response", res);
+    //     if (res) {
+    //       userName = user1[0].name;
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     error = err;
+    //     console.log("error, ", err);
+    //   });
+
+    
+// Comparing the plain text password to the hashed password
+
+
+    // if (!error && userName) {
+    //   return res
+    //     .status(200)
+    //     .json({ statusCode: 200, message: "Welcome " + userName });
+    // } else {
+    //   return res
+    //     .status(404)
+    //     .json({ statusCode: 404, message: "Invalid email/password!" });
+    // }
+
+    if (req.body.password === user1[0].password) {
       return res
         .status(200)
         .json({ statusCode: 200, message: "Welcome " + userName });
@@ -197,6 +215,9 @@ router.post(
         .status(404)
         .json({ statusCode: 404, message: "Invalid email/password!" });
     }
+
+
+
   })
 );
 
@@ -830,17 +851,9 @@ router.post(
     }
 
     let choices = req.body.choices;
-    let weights = req.body.weights; //it will need ML backend to pass the weights into it
-
-    let createAImodel = new AImodel({
-      email: userEmail,
-      choices: choices,
-      weights: weights,
-    });
-    createAImodel.save();
+    //let weights = req.body.weights; //it will need ML backend to pass the weights into it
 
     const http = require("http");
-
     const options = {
       hostname: "127.0.0.1",
       port: 8000,
@@ -848,19 +861,49 @@ router.post(
       method: "GET",
     };
 
-    const request = http.request(options, (res) => {
-      console.log(`statusCode: ${res.statusCode}`);
-
-      res.on("data", (d) => {
-        process.stdout.write(d);
+    let MLAITrainingDataResponse;
+    await makeRequestToML(options, http)
+      .then((responseBody) => {
+        MLAITrainingDataResponse = responseBody;
+        return MLAITrainingDataResponse;
+      })
+      .catch((error) => {
+        console.error(error);
       });
-    });
 
-    request.on("error", (error) => {
-      console.error(error);
-    });
+    console.log("Returning ML AI training data res, ", MLAITrainingDataResponse);
+    //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
 
-    request.end();
+    if (MLAITrainingDataResponse.includes('ERROR')) {
+      return res
+        .status(400)
+        .json({
+          statusCode: 400,
+          message: "Can not train this user: " + MLAITrainingDataResponse,
+        });
+    }
+
+    
+    let createAImodel = new AImodel({
+      email: userEmail,
+      choices: choices,
+      //weights: weights, //TODO: fetch from DB-collection(mldata)?
+    });
+    
+    await createAImodel.save().then(
+      (response) => {
+        console.log("Successfully save user's AI training data. ", response);
+      },
+      (error) => {
+        console.log("Failed to save user's AI training data. ", error.message);
+        return res
+          .status(400)
+          .json({
+            statusCode: 400,
+            message: "Failed to save user's AI training data. " + error.message,
+          });
+      }
+    );
 
     return res.status(200).json({
       statusCode: 200,
@@ -890,6 +933,78 @@ router.get(
   })
 );
 
+//API to request recommendations for partners or singles opponents
+router.get(
+  "/getSinglePlayerRecommendations/:userEmail",
+  asyncHandler(async (req, res) => {
+    const { userEmail } = req.params;
+    const user = await User.find({ email: userEmail });
+
+    if (!user || !user.length) {
+      return res
+        .status(404)
+        .json({ statusCode: 404, message: "User Not Found" });
+    }
+    
+    const http = require("http");
+    const options = {
+      hostname: "127.0.0.1",
+      port: 8000,
+      path: "/recsingles?userEmail=" + userEmail, //localhost:8000/trainml?userEmail=bruceoconnor@sjsu.edu
+      method: "GET",
+    };
+
+    let singlePlayerResResponse;
+    await makeRequestToML(options, http)
+      .then((responseBody) => {
+        singlePlayerResResponse = responseBody;
+        return singlePlayerResResponse;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    console.log("Returning ML AI training data res, ", typeof singlePlayerResResponse);
+    //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
+
+    if (MLAITrainingDataResponse.includes('ERROR')) {
+      return res
+        .status(400)
+        .json({
+          statusCode: 400,
+          message: "Can not train this user: " + MLAITrainingDataResponse,
+        });
+    }
+
+    
+    // let createAImodel = new AImodel({
+    //   email: userEmail,
+    //   choices: choices,
+    //   //weights: weights, //TODO: fetch from DB-collection(mldata)?
+    // });
+    
+    // await createAImodel.save().then(
+    //   (response) => {
+    //     console.log("Successfully save user's AI training data. ", response);
+    //   },
+    //   (error) => {
+    //     console.log("Failed to save user's AI training data. ", error.message);
+    //     return res
+    //       .status(400)
+    //       .json({
+    //         statusCode: 400,
+    //         message: "Failed to save user's AI training data. " + error.message,
+    //       });
+    //   }
+    // );
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Successfully created AI training data for user, " + userEmail,
+    });
+  })
+);
+
 const singlePlayerSkillRatingUpdate = function (p1Elo, p2Elo, s1, s2) {
   console.log("Calling ML backend to get new skill rating.");
 
@@ -902,7 +1017,7 @@ const singlePlayerSkillRatingUpdate = function (p1Elo, p2Elo, s1, s2) {
     method: "GET",
   };
 
-  return makeRequestForSkillRating(options, http);
+  return makeRequestToML(options, http);
 };
 
 const doublePlayerSkillRatingUpdate = function (
@@ -936,10 +1051,10 @@ const doublePlayerSkillRatingUpdate = function (
     method: "GET",
   };
 
-  return makeRequestForSkillRating(options, http);
+  return makeRequestToML(options, http);
 };
 
-function makeRequestForSkillRating(options, http) {
+function makeRequestToML(options, http) {
   return new Promise((resolve, reject) => {
     const req = http.request(options, (res) => {
       let responseBody = "";
@@ -947,6 +1062,10 @@ function makeRequestForSkillRating(options, http) {
       res.on("data", (chunk) => {
         responseBody += chunk;
       });
+
+      // res.on("error", (error) => {
+      //   responseBody += error;
+      // });
 
       res.on("end", () => {
         resolve(responseBody);
