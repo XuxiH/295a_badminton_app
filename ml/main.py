@@ -43,7 +43,7 @@ async def twop(t1p1Elo: float, t1p2Elo: float, t2p1Elo: float, t2p2Elo: float, s
 async def trainML(userEmail: str):
     # pull data from user and mldata
     mldata = db.badminton.mldata.find_one({"email": userEmail})
-    targetUser = db.badminton.users2.find_one({"email": userEmail})
+    targetUser = db.badminton.users.find_one({"email": userEmail})
 
     if targetUser is None:
         return f"[ERROR] {userEmail} could not be found."
@@ -62,7 +62,7 @@ async def trainML(userEmail: str):
             notChosen.append(choice[0])
     
     # pull choice list users and populate dataframe
-    choiceUserDF = pd.DataFrame(list(db.badminton.users2.find({"email": {"$in": chosen + notChosen}})))
+    choiceUserDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$in": chosen + notChosen}})))
     # print("==========================CHOICE=============================")
     # print(choiceUserDF)
     
@@ -90,7 +90,7 @@ async def trainML(userEmail: str):
 @app.get("/recsingles")
 async def recSingles(userEmail: str):
     # retrieve target user and their preference model weights
-    targetUser = db.badminton.users2.find_one({"email": userEmail})
+    targetUser = db.badminton.users.find_one({"email": userEmail})
     targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
 
     top8 = get_top_8(targetUser, targetUserMLData, [userEmail])
@@ -99,8 +99,8 @@ async def recSingles(userEmail: str):
 
 @app.get("/recdoubles1")
 async def recDoubles1(userEmail: str, partnerEmail: str):
-    targetUser = db.badminton.users2.find_one({"email": userEmail})
-    partnerUser = db.badminton.users2.find_one({"email": partnerEmail})
+    targetUser = db.badminton.users.find_one({"email": userEmail})
+    partnerUser = db.badminton.users.find_one({"email": partnerEmail})
     targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
     partnerUserMLData = db.badminton.mldata.find_one({"email": partnerEmail}, {"weights": 1})['weights']
 
@@ -117,9 +117,9 @@ async def recDoubles1(userEmail: str, partnerEmail: str):
 
 @app.get("/recdoubles2")
 async def recDoubles2(userEmail: str, partnerEmail: str, oppEmail: str):
-    targetUser = db.badminton.users2.find_one({"email": userEmail})
-    partnerUser = db.badminton.users2.find_one({"email": partnerEmail})
-    oppUser = db.badminton.users2.find_one({"email": oppEmail})
+    targetUser = db.badminton.users.find_one({"email": userEmail})
+    partnerUser = db.badminton.users.find_one({"email": partnerEmail})
+    oppUser = db.badminton.users.find_one({"email": oppEmail})
     targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
     partnerUserMLData = db.badminton.mldata.find_one({"email": partnerEmail}, {"weights": 1})['weights']
     oppUserMLData = db.badminton.mldata.find_one({"email": oppEmail}, {"weights": 1})['weights']
@@ -312,7 +312,7 @@ def get_average_ml_data(weights1, weights2):
 
 def get_top_8(user, userMLData, exc_emails):
     # retrieve entire userbase
-    userbaseDF = pd.DataFrame(list(db.badminton.users2.find({"email": {"$nin": exc_emails}})))
+    userbaseDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$nin": exc_emails}})))
 
     # generate comparison dataframe
     comparisonDF = make_comparison(user, userbaseDF)
