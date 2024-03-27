@@ -962,44 +962,133 @@ router.get(
         console.error(error);
       });
 
-    console.log("Returning ML AI training data res, ", typeof singlePlayerResResponse);
+    console.log("Returning ML recommendations for singles user res, ", singlePlayerResResponse);
     //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
 
     //  todo: need to do different thing based on the returned status code
-    if (MLAITrainingDataResponse.includes('ERROR')) {
+    if (singlePlayerResResponse.includes('ERROR')) {
       return res
         .status(400)
         .json({
           statusCode: 400,
-          message: "Can not train this user: " + MLAITrainingDataResponse,
+          message: "Can not get recommendations for singles user: " + singlePlayerResResponse,
         });
     }
 
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Successfully get recommendations for singles user, " + userEmail,
+    });
+  })
+);
+
+//API to request first doubles opponent
+router.get(
+  "/getFirstDoublePlayerRecommendations/:userEmail/:userEmail1",
+  asyncHandler(async (req, res) => {
+    const { userEmail } = req.params.userEmail;
+    const user = await User.find({ email: userEmail });
+
+    if (!user || !user.length) {
+      return res
+        .status(404)
+        .json({ statusCode: 404, message: "User Not Found" });
+    }
+
+    //TODO: need to check if the second user is in the system?
+    const { userEmail1 } = req.params.userEmail1;
+
     
-    // let createAImodel = new AImodel({
-    //   email: userEmail,
-    //   choices: choices,
-    //   //weights: weights, //TODO: fetch from DB-collection(mldata)?
-    // });
-    
-    // await createAImodel.save().then(
-    //   (response) => {
-    //     console.log("Successfully save user's AI training data. ", response);
-    //   },
-    //   (error) => {
-    //     console.log("Failed to save user's AI training data. ", error.message);
-    //     return res
-    //       .status(400)
-    //       .json({
-    //         statusCode: 400,
-    //         message: "Failed to save user's AI training data. " + error.message,
-    //       });
-    //   }
-    // );
+    const http = require("http");
+    const options = {
+      hostname: "127.0.0.1",
+      port: 8000,
+      path: "/recdoubles1?userEmail=" + userEmail + "&partnerEmail=" + userEmail1, 
+      method: "GET",
+    };
+
+    let firstDoublePlayerResResponse;
+    await makeRequestToML(options, http)
+      .then((responseBody) => {
+        firstDoublePlayerResResponse = responseBody;
+        return firstDoublePlayerResResponse;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    console.log("Returning ML recommendations for first double player res, ", firstDoublePlayerResResponse);
+    //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
+
+    //  todo: need to do different thing based on the returned status code
+    if (firstDoublePlayerResResponse.includes('ERROR')) {
+      return res
+        .status(400)
+        .json({
+          statusCode: 400,
+          message: "Can not get recommendations for first double player: " + firstDoublePlayerResResponse,
+        });
+    }
 
     return res.status(200).json({
       statusCode: 200,
-      message: "Successfully created AI training data for user, " + userEmail,
+      message: "Successfully get recommendations for singles user, " + userEmail,
+    });
+  })
+);
+
+// API to request second doubles opponent
+router.get(
+  "/getSecondDoublePlayerRecommendations/:userEmail/:userEmail1/:userEmail2",
+  asyncHandler(async (req, res) => {
+    const { userEmail } = req.params.userEmail;
+    const user = await User.find({ email: userEmail });
+
+    if (!user || !user.length) {
+      return res
+        .status(404)
+        .json({ statusCode: 404, message: "User Not Found" });
+    }
+
+    //TODO: need to check if the second user is in the system?
+    const { userEmail1 } = req.params.userEmail1;
+    const { userEmail2 } = req.params.userEmail2;
+
+    
+    const http = require("http");
+    const options = {
+      hostname: "127.0.0.1",
+      port: 8000,
+      path: "/recdoubles2?userEmail=" + userEmail + "&partnerEmail=" + userEmail1 +"&oppEmail="+userEmail2, //localhost:8000/trainml?userEmail=bruceoconnor@sjsu.edu
+      method: "GET",
+    };
+
+    let secondDoublePlayerResResponse;
+    await makeRequestToML(options, http)
+      .then((responseBody) => {
+        secondDoublePlayerResResponse = responseBody;
+        return secondDoublePlayerResResponse;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    console.log("Returning ML recommendations for second double player res, ", secondDoublePlayerResResponse);
+    //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
+
+    //  todo: need to do different thing based on the returned status code
+    if (secondDoublePlayerResResponse.includes('ERROR')) {
+      return res
+        .status(400)
+        .json({
+          statusCode: 400,
+          message: "Can not get recommendations for second double player: " + secondDoublePlayerResResponse,
+        });
+    }
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Successfully get recommendations for this user, " + userEmail,
     });
   })
 );
