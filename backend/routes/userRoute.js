@@ -5,7 +5,7 @@ let User = require("../models/users");
 let Admin = require("../models/adminUser");
 let Invitation = require("../models/invitation");
 let MatchHistory = require("../models/matchHistory");
-let AImodel = require("../models/aiTrainingModel");
+let AImodel = require("../models/mldata");
 const bcrypt = require("bcrypt");
 const _ = require("underscore");
 let isEmpty = _.isEmpty;
@@ -837,7 +837,7 @@ router.get(
   })
 );
 
-//api for getting AI training data
+//api for add AI training data to mldata
 router.post(
   "/addAImodelData",
   asyncHandler(async (req, res) => {
@@ -851,7 +851,25 @@ router.post(
     }
 
     let choices = req.body.choices;
-    //let weights = req.body.weights; //it will need ML backend to pass the weights into it
+    let createAImodel = new AImodel({
+      email: userEmail,
+      choices: choices
+    });
+    
+    await createAImodel.save().then(
+      (response) => {
+        console.log("Successfully save user's AI training data. ", response);
+      },
+      (error) => {
+        console.log("Failed to save user's AI training data. ", error.message);
+        return res
+          .status(400)
+          .json({
+            statusCode: 400,
+            message: "Failed to save user's AI training data. " + error.message,
+          });
+      }
+    );
 
     const http = require("http");
     const options = {
@@ -874,6 +892,7 @@ router.post(
     console.log("Returning ML AI training data res, ", MLAITrainingDataResponse);
     //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
 
+    //  todo: need to do different thing based on the returned status code
     if (MLAITrainingDataResponse.includes('ERROR')) {
       return res
         .status(400)
@@ -883,28 +902,7 @@ router.post(
         });
     }
 
-    
-    let createAImodel = new AImodel({
-      email: userEmail,
-      choices: choices,
-      //weights: weights, //TODO: fetch from DB-collection(mldata)?
-    });
-    
-    await createAImodel.save().then(
-      (response) => {
-        console.log("Successfully save user's AI training data. ", response);
-      },
-      (error) => {
-        console.log("Failed to save user's AI training data. ", error.message);
-        return res
-          .status(400)
-          .json({
-            statusCode: 400,
-            message: "Failed to save user's AI training data. " + error.message,
-          });
-      }
-    );
-
+  
     return res.status(200).json({
       statusCode: 200,
       message: "Successfully created AI training data for user, " + userEmail,
@@ -967,6 +965,7 @@ router.get(
     console.log("Returning ML AI training data res, ", typeof singlePlayerResResponse);
     //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
 
+    //  todo: need to do different thing based on the returned status code
     if (MLAITrainingDataResponse.includes('ERROR')) {
       return res
         .status(400)
