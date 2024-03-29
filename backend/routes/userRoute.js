@@ -117,6 +117,7 @@ router.put(
   "/updateUserInfo",
   asyncHandler(async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
+    console.log(user);
     if (user) {
       let gender = req.body.gender;
       let age = req.body.age;
@@ -158,7 +159,7 @@ router.put(
         .status(404)
         .json({
           statusCode: 404,
-          message: "Unkonw error to update user infor.",
+          message: "No user found in the system.",
         });
     }
   })
@@ -209,7 +210,7 @@ router.post(
     if (req.body.password === user1[0].password) {
       return res
         .status(200)
-        .json({ statusCode: 200, message: "Welcome " + userName });
+        .json({ statusCode: 200, message: "Welcome " + user1[0].name });
     } else {
       return res
         .status(404)
@@ -283,7 +284,7 @@ router.post(
 router.post(
   "/findPlayersRecord",
   asyncHandler(async (req, res) => {
-    let userEmail = req.body.email;
+    const userEmail = req.body.email;
     const user = await Invitation.find({ invitorEmail: userEmail });
 
     if (!user || !user.length) {
@@ -307,7 +308,7 @@ router.post(
         .json({
           statusCode: 200,
           message: "Found players list.",
-          body: returnBody,
+          body: response,
       });
 
       },
