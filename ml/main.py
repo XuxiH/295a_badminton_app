@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from math import e
 import pymongo
 import pandas as pd
@@ -46,9 +46,11 @@ async def trainML(userEmail: str):
     targetUser = db.badminton.users.find_one({"email": userEmail})
 
     if targetUser is None:
-        return f"[ERROR] {userEmail} could not be found."
+        raise HTTPException(status_code=404, detail=f"{userEmail} could not be found in the database.")
     if mldata is None:
-        return f"[ERROR] {userEmail} has no data in mldata."
+        raise HTTPException(status_code=422, detail=f"{userEmail} has no document in mldata.")
+    if not mldata["choices"]:
+        raise HTTPException(status_code=422, detail=f"{userEmail}'s document has no choice data in mldata.")
 
     # process users from choice list for pulling
     chosen = []
@@ -63,6 +65,12 @@ async def trainML(userEmail: str):
     
     # pull choice list users and populate dataframe
     choiceUserDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$in": chosen + notChosen}})))
+    choiceUserDF = choiceUserDF.dropna()
+    # check that all users were found and don't have nulls
+    searchSet = set(chosen + notChosen)
+    foundSet = set(choiceUserDF["email"])
+    if len(searchSet) != len(foundSet):
+        raise HTTPException(status_code=422, detail=f"Some users in {userEmail}'s choices are not in the users table or have nulls in user data ({searchSet.difference(foundSet)}).")
     # print("==========================CHOICE=============================")
     # print(choiceUserDF)
     
@@ -84,58 +92,79 @@ async def trainML(userEmail: str):
     # store weights to mongodb
     result = db.badminton.mldata.update_one({'_id': mldata['_id']}, {'$set': {'weights': weights}})
     # print(result)
-    return f"[SUCCESS] model training completed for {userEmail}."
+    return {"detail": f"Model training completed for {userEmail}."}
 
 # recommendation routes
 @app.get("/recsingles")
 async def recSingles(userEmail: str):
     # retrieve target user and their preference model weights
-    targetUser = db.badminton.users.find_one({"email": userEmail})
-    targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
+    targetUser = getUser(userEmail)
+    targetUserWeights = getWeights(userEmail)
 
-    top8 = get_top_8(targetUser, targetUserMLData, [userEmail])
+    top8 = get_top_8(targetUser, targetUserWeights, [userEmail])
 
     return top8
 
 @app.get("/recdoubles1")
 async def recDoubles1(userEmail: str, partnerEmail: str):
-    targetUser = db.badminton.users.find_one({"email": userEmail})
-    partnerUser = db.badminton.users.find_one({"email": partnerEmail})
-    targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
-    partnerUserMLData = db.badminton.mldata.find_one({"email": partnerEmail}, {"weights": 1})['weights']
+
+    targetUser = getUser(userEmail)
+    partnerUser = getUser(partnerEmail)
+
+    targetUserWeights = getWeights(userEmail)
+    partnerUserWeights = getWeights(partnerEmail)
 
     # need to average out the two users into one target user in order to take both sets of preferences into account
     avgUser = get_average_user(targetUser, partnerUser)
 
     # average out the preference model weights to find someone who appeals to both partners
-    avgWeightUserMLData = get_average_ml_data(targetUserMLData, partnerUserMLData)
+    avgWeights = get_average_weights(targetUserWeights, partnerUserWeights)
 
     # retrive top 8 scoring users
-    top8 = get_top_8(avgUser, avgWeightUserMLData, [userEmail, partnerEmail])
+    top8 = get_top_8(avgUser, avgWeights, [userEmail, partnerEmail])
     
     return top8
 
 @app.get("/recdoubles2")
 async def recDoubles2(userEmail: str, partnerEmail: str, oppEmail: str):
-    targetUser = db.badminton.users.find_one({"email": userEmail})
-    partnerUser = db.badminton.users.find_one({"email": partnerEmail})
-    oppUser = db.badminton.users.find_one({"email": oppEmail})
-    targetUserMLData = db.badminton.mldata.find_one({"email": userEmail}, {"weights": 1})['weights']
-    partnerUserMLData = db.badminton.mldata.find_one({"email": partnerEmail}, {"weights": 1})['weights']
-    oppUserMLData = db.badminton.mldata.find_one({"email": oppEmail}, {"weights": 1})['weights']
 
+    targetUser = getUser(userEmail)
+    partnerUser = getUser(partnerEmail)
+    oppUser = getUser(oppEmail)
+    
+    targetUserWeights = getWeights(userEmail)
+    partnerUserWeights = getWeights(partnerEmail)
+    oppUserWeights = getWeights(oppEmail)
+    
     # get average user, but give the opponent double the weight since they will be playing with this recommendation
     avgUser = get_average_user(targetUser, partnerUser)
     avgUser = get_average_user(avgUser, oppUser)
 
     # average out the preference model weights to find someone who appeals to both partners and opponent, biased toward opponent
-    avgWeightUserMLData = get_average_ml_data(targetUserMLData, partnerUserMLData)
-    avgWeightUserMLData = get_average_ml_data(avgWeightUserMLData, oppUserMLData)
+    avgWeights = get_average_weights(targetUserWeights, partnerUserWeights)
+    avgWeights = get_average_weights(avgWeights, oppUserWeights)
 
     # retrive top 8 scoring users
-    top8 = get_top_8(avgUser, avgWeightUserMLData, [userEmail, partnerEmail, oppEmail])
+    top8 = get_top_8(avgUser, avgWeights, [userEmail, partnerEmail, oppEmail])
 
     return top8
+
+
+# ===================================== PYMONGO GETTERS =========================================== 
+def getUser(email: str):
+    targetUser = db.badminton.users.find_one({"email": email})
+    if targetUser is None:
+        raise HTTPException(status_code=404, detail=f"{email} could not be found in the users database.")
+    return targetUser
+
+def getWeights(email: str):
+    targetUserMLData = db.badminton.mldata.find_one({"email": email}, {"weights": 1})
+    if targetUserMLData is None:
+        raise HTTPException(status_code=422, detail=f"{email} could not be found in mldata.")
+    if not targetUserMLData.get("weights"):
+        raise HTTPException(status_code=422, detail=f"{email} has not been run with /trainml.")
+    targetUserWeights = targetUserMLData["weights"]
+    return targetUserWeights
 
 
 # ===================================== USER COMPARISON UTILS ===========================================
@@ -302,7 +331,7 @@ def get_average_user(user1, user2):
 
     return averageUser
 
-def get_average_ml_data(weights1, weights2):
+def get_average_weights(weights1, weights2):
     avgWeights = {}
     for key in weights1.keys():
         avgWeights[key] = (weights1[key] + weights2[key]) / 2
