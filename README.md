@@ -461,6 +461,87 @@ response body:
   ]
 }
 
+### 16. APi to request recommendations for partners or singles opponents:
+### localhost:3001/badminton/users/getSinglePlayerRecommendations/bruceoconnor@sjsu.edu
+GET call 
+response body:
+{
+  "statusCode": 200,
+  "message": "Successfully get recommendations for singles user. ",
+  "body": [
+    "meganmoret@sjsu.edu",
+    "carlamccracken@sjsu.edu",
+    "rubiencallado@sjsu.edu",
+    "josefriedlander@sjsu.edu",
+    "leahreker@sjsu.edu",
+    "patriciathompson@sjsu.edu",
+    "bradenriquez@sjsu.edu",
+    "charlottepayne@sjsu.edu"
+  ]
+}
+ OR:
+ {
+  "statusCode": 400,
+  "message": "Can not get recommendations for singles user. ",
+  "body": {
+    "detail": "carmenanderson@sjsu.edu could not be found in mldata."
+  }
+}
+
+### 17. APi to request recommendations for first doubles opponent:
+### localhost:3001/badminton/users/getFirstDoublePlayerRecommendations/carmenanderson@sjsu.edu/bruceoconnor@sjsu.edu
+GET call
+response body:
+{
+  "statusCode": 200,
+  "message": "Successfully get recommendations for first double player. ",
+  "body": [
+    "charlottepayne@sjsu.edu",
+    "meganmoret@sjsu.edu",
+    "rubiencallado@sjsu.edu",
+    "joycewhite@sjsu.edu",
+    "mariapierce@sjsu.edu",
+    "marcellacorzo@sjsu.edu",
+    "annettebrashier@sjsu.edu",
+    "leahreker@sjsu.edu"
+  ]
+}
+OR:
+{
+  "statusCode": 400,
+  "message": "Can not get recommendations for first double player. ",
+  "body": {
+    "detail": "carmenanderson@sjsu.edu could not be found in mldata."
+  }
+}
+
+### 18. APi to request recommendations for second doubles opponent:
+### localhost:3001/badminton/users/getSecondDoublePlayerRecommendations/shelleyfoster@sjsu.edu/albertmcallister@sjsu.edu/buddyreeder@sjsu.edu
+GET call
+Response body:
+{
+  "statusCode": 200,
+  "message": "Successfully get recommendations for this user. ",
+  "body": [
+    "marcellacorzo@sjsu.edu",
+    "joanroush@sjsu.edu",
+    "charlotteheath@sjsu.edu",
+    "mariapierce@sjsu.edu",
+    "marycarignan@sjsu.edu",
+    "amyham@sjsu.edu",
+    "meganmoret@sjsu.edu",
+    "emilycarlson@sjsu.edu"
+  ]
+}
+
+OR:
+{
+  "statusCode": 400,
+  "message": "Can not get recommendations for second double player. ",
+  "body": {
+    "detail": "shelleyfoster@sjsu.edu could not be found in mldata."
+  }
+}
 
 
 ## ML Endpoints

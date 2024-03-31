@@ -437,9 +437,10 @@ router.put(
         });
 
       console.log("Returning Skill rating res, ", MLscoreRatingResponse);
-      let MLscoreRatingResponseJsonObj = JSON.parse(MLscoreRatingResponse);
+      let status = MLscoreRatingResponse.substring(0,3);
+      let MLscoreRatingResponseJsonObj = JSON.parse(MLscoreRatingResponse.slice(3));
 
-      if (!MLscoreRatingResponse) {
+      if (status >=400) {
         return res
           .status(400)
           .json({
@@ -598,9 +599,10 @@ router.put(
         });
 
       console.log("Returning Skill rating res, ", MLscoreRatingResponse);
-      let MLscoreRatingResponseJsonObj = JSON.parse(MLscoreRatingResponse);
+      let status = MLscoreRatingResponse.substring(0,3);
+      let MLscoreRatingResponseJsonObj = JSON.parse(MLscoreRatingResponse.slice(3));
 
-      if (!MLscoreRatingResponse) {
+      if (status >=400) {
         return res
           .status(400)
           .json({
@@ -966,19 +968,24 @@ router.get(
     console.log("Returning ML recommendations for singles user res, ", singlePlayerResResponse);
     //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
 
+    let status = singlePlayerResResponse.substring(0,3);
+    let trimmedRes = singlePlayerResResponse.slice(3); //trim the status code
     //  todo: need to do different thing based on the returned status code
-    if (singlePlayerResResponse.includes('ERROR')) {
+    if (status >=400) {
       return res
         .status(400)
         .json({
           statusCode: 400,
-          message: "Can not get recommendations for singles user: " + singlePlayerResResponse,
+          message: "Can not get recommendations for singles user. ",
+          body: JSON.parse(trimmedRes)
+          
         });
     }
 
     return res.status(200).json({
       statusCode: 200,
-      message: "Successfully get recommendations for singles user, " + userEmail,
+      message: "Successfully get recommendations for singles user. ",
+      body: JSON.parse(trimmedRes)
     });
   })
 );
@@ -987,17 +994,17 @@ router.get(
 router.get(
   "/getFirstDoublePlayerRecommendations/:userEmail/:userEmail1",
   asyncHandler(async (req, res) => {
-    const { userEmail } = req.params.userEmail;
+    const  userEmail  = req.params.userEmail;
     const user = await User.find({ email: userEmail });
 
     if (!user || !user.length) {
       return res
         .status(404)
-        .json({ statusCode: 404, message: "User Not Found" });
+        .json({ statusCode: 404, message: "User Not Found: " + userEmail});
     }
 
     //TODO: need to check if the second user is in the system?
-    const { userEmail1 } = req.params.userEmail1;
+    const  userEmail1  = req.params.userEmail1;
 
     
     const http = require("http");
@@ -1021,19 +1028,23 @@ router.get(
     console.log("Returning ML recommendations for first double player res, ", firstDoublePlayerResResponse);
     //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
 
+    let status = firstDoublePlayerResResponse.substring(0,3);
+    let trimmedRes = firstDoublePlayerResResponse.slice(3); //trim the status code
     //  todo: need to do different thing based on the returned status code
-    if (firstDoublePlayerResResponse.includes('ERROR')) {
+    if (status >=400) {
       return res
         .status(400)
         .json({
           statusCode: 400,
-          message: "Can not get recommendations for first double player: " + firstDoublePlayerResResponse,
+          message: "Can not get recommendations for first double player. ",
+          body: JSON.parse(trimmedRes)
         });
     }
 
     return res.status(200).json({
       statusCode: 200,
-      message: "Successfully get recommendations for singles user, " + userEmail,
+      message: "Successfully get recommendations for first double player. ",
+      body: JSON.parse(trimmedRes)
     });
   })
 );
@@ -1042,7 +1053,7 @@ router.get(
 router.get(
   "/getSecondDoublePlayerRecommendations/:userEmail/:userEmail1/:userEmail2",
   asyncHandler(async (req, res) => {
-    const { userEmail } = req.params.userEmail;
+    const  userEmail  = req.params.userEmail;
     const user = await User.find({ email: userEmail });
 
     if (!user || !user.length) {
@@ -1052,8 +1063,8 @@ router.get(
     }
 
     //TODO: need to check if the second user is in the system?
-    const { userEmail1 } = req.params.userEmail1;
-    const { userEmail2 } = req.params.userEmail2;
+    const  userEmail1  = req.params.userEmail1;
+    const  userEmail2  = req.params.userEmail2;
 
     
     const http = require("http");
@@ -1076,20 +1087,23 @@ router.get(
 
     console.log("Returning ML recommendations for second double player res, ", secondDoublePlayerResResponse);
     //let MLAITrainingDataJsonObj = JSON.parse(MLAITrainingDataResponse);
-
+    let status = secondDoublePlayerResResponse.substring(0,3);
+    let trimmedRes = secondDoublePlayerResResponse.slice(3); //trim the status code
     //  todo: need to do different thing based on the returned status code
-    if (secondDoublePlayerResResponse.includes('ERROR')) {
+    if (status >=400) {
       return res
         .status(400)
         .json({
           statusCode: 400,
-          message: "Can not get recommendations for second double player: " + secondDoublePlayerResResponse,
+          message: "Can not get recommendations for second double player. " ,
+          body: JSON.parse(trimmedRes)
         });
     }
 
     return res.status(200).json({
       statusCode: 200,
-      message: "Successfully get recommendations for this user, " + userEmail,
+      message: "Successfully get recommendations for this user. " ,
+      body: JSON.parse(trimmedRes)
     });
   })
 );
@@ -1148,7 +1162,9 @@ function makeRequestToML(options, http) {
     const req = http.request(options, (res) => {
       let responseBody = "";
 
+      
       res.on("data", (chunk) => {
+        responseBody += res.statusCode;
         responseBody += chunk;
       });
 
