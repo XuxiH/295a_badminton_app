@@ -2,41 +2,55 @@
 
 ## Backend Endpoint
 ### 1. User registration: localhost:3001/badminton/users/register
-request body JSON:{
+request body JSON:
+```
+{
     "name",(required)
     "zipCode",(optional)
     "yearsOfExperience",(optional)
     "email",(required)
     "password".(required)
 }
+```
 
 response JSON:
+```
 {   statusCode: 200, message: "Account Created" }
+```
 OR
+```
 {
   "statusCode": 404,
   "message": "Please provide required information to register an account. User validation failed: password: Password is a required field"
 }
+```
 
 ### 2. User login: localhost:3001/badminton/users/login
 request body JSON:
+```
 {
     "email",
     "password"
 }
+```
 
 response JSON:
+```
 {
     statusCode: 200, message: "Welcome "
 }
+```
 OR
+```
 {
     statusCode: 404,message: "User Not Found" 
 }
+```
 
 ### 3. Fetch user profile information:localhost:3001/badminton/users/email/test191@hotmail.com
 
 response JSON:
+```
 {
   "statusCode": 200,
   "message": "Found user!",
@@ -59,50 +73,66 @@ response JSON:
     "yourStory": "i am testing"
   }
 }
+```
 OR
+```
 {
   "statusCode": 404,
   "message": "user not found"
 }
+```
 
 ### 4. api to update one user's online status: localhost:3001/badminton/users/updateUserOnlineStaus
 request body JSON:
+```
 {
     "email": "test@hotmail.com"
 }
+```
 
 response JSON:
+```
 {
   "statusCode": 200,
   "message": "Update user infor successfully."
 }
+```
 
 OR:
+```
 {
   "statusCode": 404,
   "message": "Unkonw error to update user infor."
 }
+```
 
 ### 5. api to update one user's match status: localhost:3001/badminton/users/updateUserMatchStatus
 request body JSON:
+```
 {
     "email": "test@hotmail.com"
 }
+```
 
 response JSON:
+```
 {
   "statusCode": 200,
   "message": "Update user infor successfully."
 }
+```
 
 OR:
+```
 {
   "statusCode": 404,
   "message": "Unkonw error to update user infor."
 }
+```
 
 ### 6. api to update one user's basic information: localhost:3001/badminton/users/updateUserInfo
 request body JSON:
+```
 {
   "email": "test@hotmaiel.com", //required
   "name": "optional", //optional field
@@ -118,20 +148,26 @@ request body JSON:
   "matchingDistance": 15,
   "yourStory": "i am testing"
 }
+```
 
 response JSON:
+```
 {
   "statusCode": 200,
   "message": "Update user infor successfully."
 }
+```
 OR:
+```
 {
   "statusCode": 404,
   "message": "Unkonw error to update user infor."
 }
+```
 
 ### 7. api to input invitation for single player: localhost:3001/badminton/gaming/inviteSinglePlayer
 request body JSON:
+```
 {
   "invitorEmail": "test191@hotmail.com",
   "inviteeEmail":"test19@hotmail.com",
@@ -142,7 +178,9 @@ request body JSON:
   "address":"address",
   "zipCode":"567568756"     
 }
+```
 response JSON:
+```
 {
   "statusCode": 200,
   "message": "Invitation Created for, optionalTesting",
@@ -151,14 +189,18 @@ response JSON:
     "invitee": "test19@hotmail.com"
   }
 }
+```
 OR:
+```
 {
   "statusCode": 404,
   "message": "Not be able to find the invitee in the system."
 }
+```
 
 ### 8. api to input invitation for double player: localhost:3001/badminton/gaming/inviteDoublePlayer
 request body JSON:
+```
 {
 
   "invitorEmail": "test191@hotmail.com",
@@ -173,7 +215,9 @@ request body JSON:
   "zipCode":"567568756"
       
 }
+```
 response JSON:
+```
 {
   "statusCode": 200,
   "message": "Invitation Created for Double players, optionalTesting and optionalTesting",
@@ -184,28 +228,36 @@ response JSON:
     "opponentPlayer2": "test2@hotmail.com"
   }
 }
+```
 
 OR:
+```
 {
   "statusCode": 404,
   "message": "Not be able to find the this invitor's partner in the system."
 }
+```
 OR:
+```
 {
   "statusCode": 404,
   "message": "Not be able to invite same player to be your partner or opponent at the same time."
 }
+```
 
 ### 9. api to find players list from invitation record: localhost:3001/badminton/users/findPlayersRecord
 POST call
 request body JSON:
+```
 {
 "email": "test191@hotmail.com",
 "gamingDate": "2023-10-27", //String type passed in this format 'YYYY-MM-DD'
 "gameStartTime":"10:20", //String Type passed in this format 'hh:mm'
 }
+```
 response JSON:
 Double players gaming response: 
+```
 {
   "statusCode": 200,
   "message": "Found players list.",
@@ -217,7 +269,9 @@ Double players gaming response:
     ]
   }
 }
+```
 Single players gaming response:
+```
 {
   "statusCode": 200,
   "message": "Found players list.",
@@ -225,20 +279,26 @@ Single players gaming response:
     "opponent": "test@hotmail.com"
   }
 }
+```
 OR:
+```
 {
   "statusCode": 404,
   "message": "No invitation record found!"
 }
+```
 OR:
+```
 {
   "statusCode": 404,
   "message": "User Not Found"
 }
+```
 
 ### 10. api to fetch this user's invitation notification: localhost:3001/badminton/gaming/getNotification/test19@hotmail.com
 
 response body:
+```
 {
   "statusCode": 200,
   "message": "Invitation notifications.",
@@ -253,16 +313,20 @@ response body:
     }
   ]
 }
+```
 
 OR:
+```
 {
   "statusCode": 404,
   "message": "Not be able to find the user in the system."
 }
+```
 
 ### 11. api to add this user's match record: localhost:3001/badminton/users/addMatchHistory
 for single playing format:
 request body: 
+```
 {
   "email":"test@hotmail.com",
   "playFormat" : "Single",
@@ -272,19 +336,25 @@ request body:
   "opponentEmail": ["test26768@hotmail.com"] //This must pass in as array
   
 }
+```
 response body:
+```
 {
   "statusCode": 200,
   "message": "Match history created for your single player format game."
 }
+```
 OR:
+```
 {
   "statusCode": 404,
   "message": "Missing your opponent's email."
 }
+```
 
 For double players gaming mode:
 request body: 
+```
 {
   "email":"test@hotmail.com",
    "playFormat" : "Double",
@@ -295,19 +365,26 @@ request body:
   "opponentEmail": ["test26768@hotmail.com","test112909@hotmail.com"]  //This must pass in as array
   
 }
+```
 response body:
+```
 {
   "statusCode": 200,
   "message": "Match history created for your double player format game."
 }
+```
+### OR: 
+```
 {
   "statusCode": 404,
   "message": "Missing your opponent's email."
 }
+```
 
 ### 12. api to fetch a user's match history: localhost:3001/badminton/users/getMatchHistory/:email
 
 response body:
+```
 {
   "statusCode": 200,
   "message": "Match history found.",
@@ -344,15 +421,19 @@ response body:
     }
   ]
 }
+```
 
 OR:
+```
 {
   "statusCode": 404,
   "message": "User Not Found"
 }
+```
 
 ### 13. api to store AI training data into DB: localhost:3001/badminton/users/addAImodelData
 request body:
+```
 {
   "email": "test@hotmail.com", //required field
   "choices": [, //required field
@@ -363,20 +444,25 @@ request body:
     ["u1@gmail.com","u2@gmail.com",1]
   ]
 }
+```
 
 response body:
+```
 {
   "statusCode": 200,
   "message": "Successfully created AI training data for user, test@hotmail.com"
 }
-OR:
+```
+### OR:
+```
 {
   "statusCode": 404,
   "message": "User Not Found"
 }
+```
 
 ### 14. APi to fetch a user's AI training model data: localhost:3001/badminton/users/getAImodelData/test12340226@gmail.com
-
+```
 {
   "statusCode": 200,
   "message": "Successfully get AI training data for user, test12340226@gmail.com",
@@ -424,16 +510,20 @@ OR:
     "__v": 0
   }
 }
-OR:
+```
+### OR:
+```
 {
   "statusCode": 404,
   "message": "User Not Found"
 }
+```
 
 ### 15. APi to fetch 20 users's email: localhost:3001/badminton/users/randomUsers
 
 GET call 
 response body:
+```
 {
   "statusCode": 200,
   "message": "Successfully Fetch 20 users!",
@@ -460,11 +550,13 @@ response body:
     "brittanythao@sjsu.edu"
   ]
 }
+```
 
 ### 16. APi to request recommendations for partners or singles opponents:
 ### localhost:3001/badminton/users/getSinglePlayerRecommendations/bruceoconnor@sjsu.edu
 GET call 
 response body:
+```
 {
   "statusCode": 200,
   "message": "Successfully get recommendations for singles user. ",
@@ -479,7 +571,9 @@ response body:
     "charlottepayne@sjsu.edu"
   ]
 }
- OR:
+```
+ ### OR:
+ ```
  {
   "statusCode": 400,
   "message": "Can not get recommendations for singles user. ",
@@ -487,11 +581,13 @@ response body:
     "detail": "carmenanderson@sjsu.edu could not be found in mldata."
   }
 }
+```
 
 ### 17. APi to request recommendations for first doubles opponent:
 ### localhost:3001/badminton/users/getFirstDoublePlayerRecommendations/carmenanderson@sjsu.edu/bruceoconnor@sjsu.edu
 GET call
 response body:
+```
 {
   "statusCode": 200,
   "message": "Successfully get recommendations for first double player. ",
@@ -506,7 +602,9 @@ response body:
     "leahreker@sjsu.edu"
   ]
 }
-OR:
+```
+### OR:
+```
 {
   "statusCode": 400,
   "message": "Can not get recommendations for first double player. ",
@@ -514,11 +612,13 @@ OR:
     "detail": "carmenanderson@sjsu.edu could not be found in mldata."
   }
 }
+```
 
 ### 18. APi to request recommendations for second doubles opponent:
 ### localhost:3001/badminton/users/getSecondDoublePlayerRecommendations/shelleyfoster@sjsu.edu/albertmcallister@sjsu.edu/buddyreeder@sjsu.edu
 GET call
 Response body:
+```
 {
   "statusCode": 200,
   "message": "Successfully get recommendations for this user. ",
@@ -533,8 +633,10 @@ Response body:
     "emilycarlson@sjsu.edu"
   ]
 }
+```
 
 OR:
+```
 {
   "statusCode": 400,
   "message": "Can not get recommendations for second double player. ",
@@ -542,6 +644,7 @@ OR:
     "detail": "shelleyfoster@sjsu.edu could not be found in mldata."
   }
 }
+```
 
 
 ## ML Endpoints
