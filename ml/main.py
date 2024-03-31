@@ -159,7 +159,6 @@ def format_compat_legacy(row, user):
     
 def format_compat(row, user):
     # returns number of compatible formats, and allows for partial matches
-
     compat = 0
     if user['gender'] == row['gender']: # same genders, so doubles
         if 'd' in user['format'] and 'd' in row['format']:
@@ -310,9 +309,21 @@ def get_average_ml_data(weights1, weights2):
 
     return avgWeights
 
-def get_top_8(user, userMLData, exc_emails):
+def get_top_8(user, userMLData, exc_emails, top_x = 8):
     # retrieve entire userbase
-    userbaseDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$nin": exc_emails}})))
+    userbaseDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$nin": exc_emails}}, {
+        "email":1,
+        "age":1,
+        "gender":1,
+        "yearsOfExperience":1,
+        "format":1,
+        "style":1,
+        "skillRating":1,
+        "onlineStatus":1,
+        "matchStatus":1,
+        })))
+    
+    userbaseDF = userbaseDF.dropna()
 
     # generate comparison dataframe
     comparisonDF = make_comparison(user, userbaseDF)
@@ -321,7 +332,7 @@ def get_top_8(user, userMLData, exc_emails):
     scoreDF = comparisonDF.loc[:,['email']]
     scoreDF["pref_score"] = comparisonDF.apply(apply_weights, axis=1, weights=userMLData)
     scoreDF = scoreDF.sort_values(by=['pref_score'], ascending=False)
-    top8 = scoreDF.iloc[0:8,0].to_list()
+    top8 = scoreDF.iloc[0:top_x,0].to_list()
     
     return top8
 
