@@ -64,7 +64,17 @@ async def trainML(userEmail: str):
             notChosen.append(choice[0])
     
     # pull choice list users and populate dataframe
-    choiceUserDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$in": chosen + notChosen}})))
+    choiceUserDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$in": chosen + notChosen}}, {
+        "email":1,
+        "age":1,
+        "gender":1,
+        "yearsOfExperience":1,
+        "format":1,
+        "style":1,
+        "skillRating":1,
+        "onlineStatus":1,
+        "matchStatus":1,
+        })))
     choiceUserDF = choiceUserDF.dropna()
     # check that all users were found and don't have nulls
     searchSet = set(chosen + notChosen)
