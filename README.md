@@ -70,7 +70,7 @@ response JSON:
     "age": 24,
     "gender": "F",
     "matchingDistance": 15,
-    "playStyle": "single",
+    "style": "single",
     "yourStory": "i am testing"
   }
 }
@@ -147,8 +147,8 @@ request body JSON:
   "age": 24,
   "zipCode": "12345",
   "yearsOfExperience" : 2,
-  "playStyle":"aggressive",
-  "playFormat": "single",
+  "style":"aggressive",
+  "format": "single",
   "matchingDistance": 15,
   "yourStory": "i am testing"
 }
@@ -337,7 +337,7 @@ request body:
 ```
 {
   "email":"test@hotmail.com",
-  "playFormat" : "Single",
+  "format" : "Single",
   "date": "2024-09-01", //String type passed in this format 'YYYY-MM-DD'
   "yourScore": 34,
   "opponentScore": 56,
@@ -365,7 +365,7 @@ request body:
 ```
 {
   "email":"test@hotmail.com",
-   "playFormat" : "Double",
+   "format" : "Double",
   "date": "2026-09-01",
   "yourScore": 35,
   "opponentScore": 56,
@@ -402,7 +402,7 @@ response body:
       "_id": "65722e1411b00b7248119dfd",
       "email": "test@hotmail.com",
       "date": "2026-09-01T00:00:00.000Z",
-      "playFormat": "Single",
+      "format": "Single",
       "matchingOpponents": [
         "test26768@hotmail.com"
       ],
@@ -416,7 +416,7 @@ response body:
       "_id": "65722f498c96ccbeed86544b",
       "email": "test@hotmail.com",
       "date": "2026-09-01T00:00:00.000Z",
-      "playFormat": "Double",
+      "format": "Double",
       "matchingPartners": "test2@gmail.com",
       "matchingOpponents": [
         "test26768@hotmail.com",

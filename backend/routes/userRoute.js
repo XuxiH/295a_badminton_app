@@ -123,16 +123,16 @@ router.put(
       let age = req.body.age;
       let zipCode = req.body.zipCode;
       let userYOE = req.body.yearsOfExperience;
-      let playStyle = req.body.playStyle;
-      let playFormat = req.body.playFormat;
+      let style = req.body.style;
+      let format = req.body.format;
       let matchingDistance = req.body.matchingDistance;
       let yourStory = req.body.yourStory;
       user.gender = gender;
       user.age = age;
       user.zipCode = zipCode;
       user.yearsOfExperience = userYOE;
-      user.playStyle = playStyle;
-      user.playFormat = playFormat;
+      user.style = style;
+      user.format = format;
       user.matchingDistance = matchingDistance;
       user.yourStory = yourStory;
 
@@ -334,7 +334,7 @@ router.put(
         .json({ statusCode: 404, message: "User Not Found" });
     }
 
-    let playFormat = req.body.playFormat;
+    let format = req.body.format;
     let date = req.body.date;
     let yourScore = req.body.yourScore;
     let opponentScore = req.body.opponentScore;
@@ -347,7 +347,7 @@ router.put(
     let oppUser2; //double player's opponent 2
 
     //Make sure partner, opponents are valid users in the system
-    if (playFormat.toLowerCase() === "single") {
+    if (format.toLowerCase() === "single") {
       //1. no opponent email
       if (opponentEmail.length < 1) {
         return res
@@ -367,8 +367,8 @@ router.put(
       }
     }
     if (
-      playFormat.toLowerCase() === "double" ||
-      playFormat.toLowerCase() === "mix"
+      format.toLowerCase() === "double" ||
+      format.toLowerCase() === "mix"
     ) {
       //1. Missing opponent emails
       if (opponentEmail.length != 2) {
@@ -391,8 +391,8 @@ router.put(
     }
 
     if (
-      playFormat.toLowerCase() === "double" ||
-      playFormat.toLowerCase() === "mix"
+      format.toLowerCase() === "double" ||
+      format.toLowerCase() === "mix"
     ) {
       if (!partnerEmail) {
         return res
@@ -412,7 +412,7 @@ router.put(
     }
 
     //if it is single match, store opponent email
-    if (playFormat.toLowerCase() === "single") {
+    if (format.toLowerCase() === "single") {
       //update the skill rating
       let yourOldSkillRating = user[0].skillRating;
       console.log("Your old score rating is, ", yourOldSkillRating);
@@ -494,7 +494,7 @@ router.put(
       let userMatchHistoryObj = buildMatchHistoryObj(
         req.body.email,
         date,
-        playFormat,
+        format,
         undefined,
         opponentEmail,
         yourScore,
@@ -503,7 +503,7 @@ router.put(
       // new MatchHistory({
       //   "email": req.body.email,
       //   "date": date,
-      //   "playFormat": playFormat,
+      //   "format": format,
       //   "matchingPartners" : undefined,
       //   "matchingOpponents":opponentEmail[0],
       //   "yourScore": yourScore,
@@ -529,7 +529,7 @@ router.put(
       let user2MatchHistoryObj = buildMatchHistoryObj(
         opponentEmail[0],
         date,
-        playFormat,
+        format,
         undefined,
         req.body.email,
         opponentScore,
@@ -560,8 +560,8 @@ router.put(
     }
     //TODO: if it is double players match, store, partner emial, two other opponents emails
     if (
-      playFormat.toLowerCase() === "double" ||
-      playFormat.toLowerCase() === "mix"
+      format.toLowerCase() === "double" ||
+      format.toLowerCase() === "mix"
     ) {
       //update the skill rating
       let yourOldSkillRating = user[0].skillRating;
@@ -688,7 +688,7 @@ router.put(
       let yourMatchHistoryObj = buildMatchHistoryObj(
         req.body.email,
         date,
-        playFormat,
+        format,
         partnerUser[0].email,
         opponentEmail,
         yourScore,
@@ -714,7 +714,7 @@ router.put(
       let yourPartnerMatchHistoryObj = buildMatchHistoryObj(
         partnerUser[0].email,
         date,
-        playFormat,
+        format,
         req.body.email,
         opponentEmail,
         yourScore,
@@ -741,7 +741,7 @@ router.put(
       let yourOppo1MatchHistoryObj = buildMatchHistoryObj(
         oppUser1[0].email,
         date,
-        playFormat,
+        format,
         oppUser2[0].email,
         oppArr,
         opponentScore,
@@ -767,7 +767,7 @@ router.put(
       let yourOppo2MatchHistoryObj = buildMatchHistoryObj(
         oppUser2[0].email,
         date,
-        playFormat,
+        format,
         oppUser1[0].email,
         oppArr,
         opponentScore,
@@ -792,7 +792,7 @@ router.put(
       // let userMatchHistoryObj = new MatchHistory({
       //   "email": req.body.email,
       //   "date": date,
-      //   "playFormat": playFormat,
+      //   "format": format,
       //   "matchingPartners" : partnerEmail,
       //   "matchingOpponents":opponentEmail,
       //   "yourScore": yourScore,
@@ -806,7 +806,7 @@ router.put(
           statusCode: 200,
           message:
             "Match history created for your " +
-            playFormat +
+            format +
             " player format game.",
         });
     }
@@ -1205,7 +1205,7 @@ async function updateUserSkillRating(email, skillRating) {
 const buildMatchHistoryObj = function (
   email,
   date,
-  playFormat,
+  format,
   matchingPartners,
   matchingOpponents,
   yourScore,
@@ -1214,7 +1214,7 @@ const buildMatchHistoryObj = function (
   let userMatchHistoryObj = new MatchHistory({
     email: email,
     date: date,
-    playFormat: playFormat,
+    format: format,
     matchingPartners: matchingPartners,
     matchingOpponents: matchingOpponents,
     yourScore: yourScore,

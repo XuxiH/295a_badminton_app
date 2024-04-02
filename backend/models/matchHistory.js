@@ -9,7 +9,7 @@ const matchHistorySchema = mongoose.Schema({
         type: Date,
         required: [true, "Match Date is a required field"]
     },
-    playFormat:{
+    format:{
         type: String,
         required: [true, "Play format is a required field"]
     },

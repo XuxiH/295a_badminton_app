@@ -50,10 +50,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "F",
     },
-    playStyle: {
+    style: {
       type: String,
     },
-    playFormat:{
+    format:{
         type: String,
     },
     matchingDistance: {
@@ -64,11 +64,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "Hello!",
     },
+    warehouse:{
+      type: Number,
+      default: 0,
+    },
+    phone:{
+      type: String,
+      match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/, //formats (123) 456-7890 or 123-456-7890
+    },
     matchHistory: {
       //coming from the MatchHistory schema
       type: mongoose.Schema.Types.ObjectId,
       ref: "MatchHistory",
     },
+
   },
   {
     timestamps: true,
