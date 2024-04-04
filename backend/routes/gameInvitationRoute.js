@@ -249,6 +249,9 @@ router.get(
       invitationRecordAsPartner.forEach((partner) => {
         let notificationObj = {
           invitor: partner.invitorEmail,
+          phoneNumber:partner.phoneNumber,
+          gamingDate:partner.gamingDate,
+          gameStartTime:partner.gameStartTime,
           message: "You received a gaming invitation as the invitor's partner.",
         };
         notificationList.push(notificationObj);
@@ -259,6 +262,9 @@ router.get(
       invitationRecordAsOpponent.forEach((partner) => {
         let notificationObj = {
           invitor: partner.invitorEmail,
+          phoneNumber:partner.phoneNumber,
+          gamingDate:partner.gamingDate,
+          gameStartTime:partner.gameStartTime,
           message:
             "You received a gaming invitation as the invitor's opponent.",
         };

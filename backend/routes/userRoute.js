@@ -321,6 +321,37 @@ router.post(
   })
 );
 
+//api for finding one user's inviation
+router.get(
+  "/findInvitationRecord/:userEmail",
+  asyncHandler(async (req, res) => {
+    const {userEmail} = req.params;
+    const user = await User.find({ email: userEmail });
+
+    if (!user || !user.length) {
+      return res
+        .status(404)
+        .json({ statusCode: 404, message: "User Not Found" });
+    }
+
+    const invitations = await Invitation.find({ invitorEmail: userEmail }); 
+    if (!invitations || !invitations.length) {
+      return res
+        .status(404)
+        .json({ statusCode: 404, message: "No invitation record found for this user: " + userEmail});
+    }
+ 
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Found players list.",
+      body: invitations,
+    });
+
+
+  })
+);
+
 //api for Adding match history
 router.put(
   "/addMatchHistory",

@@ -313,10 +313,16 @@ response body:
   "body": [
     {
       "invitor": "test191@hotmail.com",
-      "message": "You received a gaming invitation as the invitor's partner."
+      "phoneNumber": "12323434325",
+      "gamingDate": "2023-10-28T00:00:00.000Z",
+      "gameStartTime": "10:29",
+      "message": "You received a gaming invitation as the invitor's opponent."
     },
     {
       "invitor": "test191@hotmail.com",
+      "phoneNumber": "12323434325",
+      "gamingDate": "2023-10-28T00:00:00.000Z",
+      "gameStartTime": "Fri Oct 27 2023 17:00:00 GMT-0700 (Pacific Daylight Time)",
       "message": "You received a gaming invitation as the invitor's opponent."
     }
   ]
@@ -653,6 +659,65 @@ OR:
   "body": {
     "detail": "shelleyfoster@sjsu.edu could not be found in mldata."
   }
+}
+```
+### 19. APi for finding one user's inviation:
+```localhost:3001/badminton/users/findInvitationRecord/jamesharris@sjsu.edu```
+GET call
+Response body:
+```
+{
+  "statusCode": 200,
+  "message": "Found players list.",
+  "body": [
+    {
+      "_id": "657100ec48b850875c310d66",
+      "invitorEmail": "jamesharris@sjsu.edu",
+      "inviteeEmail": [
+        "test19@hotmail.com"
+      ],
+      "phoneNumber": "12323434325",
+      "gameStartTime": "gameStartTime",
+      "gameEndTime": "gameEndTime",
+      "address": "address",
+      "zipCode": "567568756",
+      "createdAt": "2023-12-06T23:17:00.985Z",
+      "updatedAt": "2023-12-06T23:17:00.985Z",
+      "__v": 0
+    },
+    {
+      "_id": "66072ba6c39b2f33cdd74382",
+      "invitorEmail": "jamesharris@sjsu.edu",
+      "inviteeEmail": [
+        {
+          "partner": "shelleyfoster@sjsu.edu"
+        },
+        {
+          "opponent": [
+            "cheryldunham@sjsu.edu",
+            "albertmcallister@sjsu.edu"
+          ]
+        }
+      ],
+      "phoneNumber": "12323434325",
+      "gamingDate": "2024-01-03T00:00:00.000Z",
+      "gameStartTime": "14:30",
+      "gameEndTime": "15:30",
+      "address": "address",
+      "zipCode": "567568756",
+      "createdAt": "2024-03-29T20:59:18.196Z",
+      "updatedAt": "2024-03-29T20:59:18.196Z",
+      "__v": 0
+    }
+  ]
+}
+```
+
+OR:
+```
+{
+  "statusCode": 404,
+  "message": "No invitation record found for this user: albertmcallister@sjsu.edu"
 }
 ```
 
