@@ -6,11 +6,12 @@ from sys import exit
 from sklearn.linear_model import LogisticRegression
 import os
 from dotenv import load_dotenv
+import certifi
 
 load_dotenv()
 
 try:
-    db = pymongo.MongoClient(os.getenv('MONGO_URI'))
+    db = pymongo.MongoClient(os.getenv('MONGO_URI'), tlsCAFile=certifi.where())
     db.admin.command('ismaster')
 except Exception as error:
     print("[ERROR] ", error)
