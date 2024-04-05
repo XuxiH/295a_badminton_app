@@ -15,8 +15,8 @@ const Firstvisit = () => {
     age: undefined,
     zipCode: undefined,
     experience: undefined,
-    playStyle: "single",
-    playFormat: "aggressive",
+    playStyle: "aggressive",
+    playFormat: [],
     matchdistance: undefined,
     story: "",
   });
@@ -52,16 +52,61 @@ const Firstvisit = () => {
     setFormData({ ...formData, [type]: data });
   };
 
+  const validate = () => {
+    console.log(formData);
+    const {
+      gender,
+      age,
+      zipCode,
+      experience,
+      playStyle,
+      playFormat,
+      matchdistance,
+    } = formData;
+    if (!gender) {
+      setWarning({ visible: true, message: "Please select gender." });
+      return false;
+    }
+    if (!age || age.length < 1) {
+      setWarning({ visible: true, message: "Please type your age." });
+      return false;
+    }
+    if (!zipCode || zipCode.length < 1) {
+      setWarning({ visible: true, message: "Please type your zipCode." });
+      return false;
+    }
+    if (!experience || experience.length < 1) {
+      setWarning({ visible: true, message: "Please type your experience." });
+      return false;
+    }
+    if (!playStyle) {
+      setWarning({ visible: true, message: "Please select your playStyle." });
+      return false;
+    }
+    if (!playFormat || playFormat.length < 1) {
+      setWarning({ visible: true, message: "Please select your playFormat." });
+      return false;
+    }
+    if (!matchdistance || matchdistance.length < 1) {
+      setWarning({ visible: true, message: "Please type your matchdistance." });
+      return false;
+    }
+    setWarning({ visible: false, message: "" });
+    return true;
+  };
+
   const handleSubmit = async () => {
+    const validateStatus = validate();
+    if (!validateStatus) return;
     const useremail = sessionStorage.getItem("email");
     const result = await updateUserInfo({
       email: useremail,
       gender: formData.gender,
       age: formData.age,
       zipCode: formData.zipCode,
-      experience: formData.experience,
-      playStyle: formData.playStyle,
-      playFormat: formData.playFormat,
+      yearsOfExperience: formData.experience,
+      style: formData.playStyle,
+      format: formData.playFormat.map((item) => item.charAt(0)).join(""),
       matchdistance: formData.matchdistance,
       yourStory: formData.story,
     });
@@ -153,22 +198,80 @@ const Firstvisit = () => {
           <Col xs={12} md={4} className="mb-3">
             <Form.Group controlId="playFormat">
               <Form.Label>Play Format</Form.Label>
-              <Form.Select
-                value={formData.playFormat}
-                onChange={(e) => {
-                  handleChange("playFormat", e.target.value);
-                }}
-              >
-                <option value="single">single</option>
-                <option value="double">double</option>
-                <option value="mix">mix</option>
-              </Form.Select>
+              <div className="mb-3">
+                <Form.Check
+                  inline
+                  label="single"
+                  name="single"
+                  type="checkbox"
+                  id="single-checkbox"
+                  checked={formData.playFormat.includes("single")}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      handleChange("playFormat", [
+                        ...formData.playFormat,
+                        "single",
+                      ]);
+                    } else {
+                      handleChange(
+                        "playFormat",
+                        formData.playFormat.filter((item) => item !== "single")
+                      );
+                    }
+                  }}
+                />
+                <Form.Check
+                  inline
+                  label="double"
+                  name="double"
+                  type="checkbox"
+                  id="double-checkbox"
+                  checked={formData.playFormat.includes("double")}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      handleChange("playFormat", [
+                        ...formData.playFormat,
+                        "double",
+                      ]);
+                    } else {
+                      handleChange(
+                        "playFormat",
+                        formData.playFormat.filter((item) => item !== "double")
+                      );
+                    }
+                  }}
+                />
+                <Form.Check
+                  inline
+                  label="mix"
+                  name="mix"
+                  type="checkbox"
+                  id="mix-checkbox"
+                  checked={formData.playFormat.includes("mix")}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      handleChange("playFormat", [
+                        ...formData.playFormat,
+                        "mix",
+                      ]);
+                    } else {
+                      handleChange(
+                        "playFormat",
+                        formData.playFormat.filter((item) => item !== "mix")
+                      );
+                    }
+                  }}
+                />
+              </div>
             </Form.Group>
           </Col>
 
           <Col xs={12} md={4} className="mb-3">
             <Form.Group controlId="distance">
-              <Form.Label>Matching Distance</Form.Label>
+              <Form.Label>Matching Distance (miles)</Form.Label>
               <Form.Control
                 value={formData.matchdistance}
                 onChange={(e) => {

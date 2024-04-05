@@ -35,7 +35,7 @@ const Matches = () => {
       formData.playformat === "Single"
         ? {
             email,
-            playFormat: formData.playformat,
+            format: formData.playformat,
             date: formData.date || date,
             yourScore: formData.yourscores,
             opponentScore: formData.opponentscores,
@@ -43,7 +43,7 @@ const Matches = () => {
           }
         : {
             email,
-            playFormat: formData.playformat,
+            format: formData.playformat,
             date: formData.date || date,
             yourScore: formData.yourscores,
             opponentScore: formData.opponentscores,
@@ -163,10 +163,10 @@ const Matches = () => {
                   <span>{formatDate(match.date)}</span>
                 </Col>
                 <Col className="my-3 d-flex align-items-center" sm md={3}>
-                  <span>{match.playFormat}</span>
+                  <span>{match.format}</span>
                 </Col>
                 <Col sm md={6}>
-                  {String(match.playFormat).toLowerCase() === "single" ? (
+                  {String(match.format).toLowerCase() === "single" ? (
                     <Row className="d-flex justify-content-around align-items-center my-3">
                       <Col md={5}>
                         <div>

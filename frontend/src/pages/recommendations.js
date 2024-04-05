@@ -2,20 +2,30 @@ import { useState, useEffect, useCallback } from "react";
 import Container from "react-bootstrap/esm/Container";
 import { SingleCardComponent } from "../components/Card";
 import { Row, Col, Button, Alert, Modal, Form } from "react-bootstrap";
-import { inviteSinglePlayer, inviteDoublePlayer, getRandomUsers, getUserInfo } from "../api";
-import './recommendations.css';
+import {
+  inviteSinglePlayer,
+  inviteDoublePlayer,
+  getUserInfo,
+  getSinglePlayerRecommendations,
+  getFirstDoublePlayerRecommendations,
+  getSecondDoublePlayerRecommendations,
+} from "../api";
+import "./recommendations.css";
 
 const Recommendations = () => {
-  const [randomUsers, setRandomUsers] = useState([]);
+  const [recommendUsers, setRecommendUsers] = useState([]);
   const [warning, setWarning] = useState({ visible: false, message: "" });
 
   useEffect(() => {
-    fetchUsersData();
+    fetchSingleUsersData();
   }, []);
 
-  const fetchUsersData = async () => {
+  const fetchSingleUsersData = async () => {
     try {
-      const result = await getRandomUsers();
+      setRecommendUsers([]);
+      const result = await getSinglePlayerRecommendations({
+        email: sessionStorage.getItem("email"),
+      });
       if (result && result.statusCode == 200) {
         console.log(result);
         result.body.forEach((email) => {
@@ -27,47 +37,85 @@ const Recommendations = () => {
     }
   };
 
-  const fetchUserInfo = async (email) => {
+  const fetchFirstDoubleUsersData = async (email) => {
     try {
-      const result = await getUserInfo({ email: email });
+      setRecommendUsers([]);
+      const result = await getFirstDoublePlayerRecommendations({
+        email1: sessionStorage.getItem("email"),
+        email2: email,
+      });
       if (result && result.statusCode == 200) {
-        setRandomUsers((prevState) => [...prevState, result.body]);
+        console.log(result);
+        result.body.forEach((email) => {
+          fetchUserInfo(email);
+        });
       }
     } catch (error) {
       return;
     }
   };
 
-  const [step, setStep] = useState(1);// 1: single, 2: partner, 3: double player I, 4: double player II
+  const fetchSecondDoubleUsersData = async (email2, email3) => {
+    try {
+      setRecommendUsers([]);
+      const result = await getSecondDoublePlayerRecommendations({
+        email1: sessionStorage.getItem("email"),
+        email2,
+        email3,
+      });
+      if (result && result.statusCode == 200) {
+        console.log(result);
+        result.body.forEach((email) => {
+          fetchUserInfo(email);
+        });
+      }
+    } catch (error) {
+      return;
+    }
+  };
+  const fetchUserInfo = async (email) => {
+    try {
+      const result = await getUserInfo({ email: email });
+      if (result && result.statusCode == 200) {
+        setRecommendUsers((prevState) => [...prevState, result.body]);
+      }
+    } catch (error) {
+      return;
+    }
+  };
+
+  const [step, setStep] = useState(1); // 1: single, 2: partner, 3: double player I, 4: double player II
   const [singlePlayer, setSinglePlayer] = useState({});
   const [partner, setPartner] = useState({});
   const [doublePlayerList, setDoublePlayerList] = useState([]);
 
-  const [format, setFormat] = useState("single")
-  const [formatTo, setformatTo] = useState('double')
+  const [format, setFormat] = useState("single");
+  const [formatTo, setformatTo] = useState("double");
 
-  const handleFormatChange = (format) => {
-    if (format === 'single') {
-      setFormat('single')
-      setStep(1)
+  const handleFormatChange = async (format) => {
+    if (format === "single") {
+      setFormat("single");
+      await fetchSingleUsersData();
+      setStep(1);
     } else {
-      setformatTo(format)
-      handleFormatShow()
+      setformatTo(format);
+      handleFormatShow();
     }
-  }
+  };
 
   const [formatShow, setFormatShow] = useState(false);
 
   const handleFormatClose = () => setFormatShow(false);
   const handleFormatShow = () => setFormatShow(true);
   const handleFormatSubmit = async () => {
-    if (email === '') return;
+    if (email === "") return;
     try {
       const result = await getUserInfo({ email: email });
       if (result && result.statusCode == 200) {
-        setFormat(formatTo)
-        setFormatShow(false)
-        setStep(3)
+        await fetchFirstDoubleUsersData(email);
+        setFormat(formatTo);
+        setFormatShow(false);
+        setStep(3);
         setPartner(result.body);
       } else {
         return;
@@ -75,30 +123,33 @@ const Recommendations = () => {
     } catch (error) {
       return;
     }
-  }
+  };
 
   const [email, setEmail] = useState("");
 
   const [inviteShow, setInviteShow] = useState(false);
-  const handleInviteOpen = (user) => {
+  const handleInviteOpen = async (user) => {
     if (step === 1) {
-      setSinglePlayer(user)
+      setSinglePlayer(user);
     }
     if (step === 2) {
-      setPartner(user)
-      setStep(3)
+      setPartner(user);
+      await fetchFirstDoubleUsersData(user.email);
+      setStep(3);
+      setFormat(formatTo);
       return;
     }
     if (step === 3) {
-      setDoublePlayerList([user])
-      setStep(4)
+      setDoublePlayerList([user]);
+      await fetchSecondDoubleUsersData(partner.email, user.email);
+      setStep(4);
       return;
     }
     if (step === 4) {
-      setDoublePlayerList([doublePlayerList[0], user])
+      setDoublePlayerList([doublePlayerList[0], user]);
     }
     setInviteShow(true);
-  }
+  };
   const handleInviteClose = () => setInviteShow(false);
 
   const [formData, setFormData] = useState({
@@ -108,15 +159,22 @@ const Recommendations = () => {
     gamingendtime: undefined,
     gamelocation: undefined,
     notes: "",
-    zip: undefined
+    zip: undefined,
   });
 
   const handleChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
-  }
+  };
 
   const validateInvite = () => {
-    const { phonenumber, gamingdate, gamingstarttime, gamingendtime, gamelocation, zip } = formData;
+    const {
+      phonenumber,
+      gamingdate,
+      gamingstarttime,
+      gamingendtime,
+      gamelocation,
+      zip,
+    } = formData;
     if (!phonenumber || phonenumber.length < 1) {
       setWarning({ visible: true, message: "Please type your phonenumber." });
       return false;
@@ -126,7 +184,10 @@ const Recommendations = () => {
       return false;
     }
     if (!gamingstarttime || gamingstarttime.length < 1) {
-      setWarning({ visible: true, message: "Please type your gamingstarttime." });
+      setWarning({
+        visible: true,
+        message: "Please type your gamingstarttime.",
+      });
       return false;
     }
     if (!gamingendtime || gamingendtime.length < 1) {
@@ -138,7 +199,7 @@ const Recommendations = () => {
       return false;
     }
     if (!zip || zip.length < 1) {
-      setWarning({ visible: true, message: "Please type your zip." });
+      setWarning({ visible: true, message: "Please type your zipcode." });
       return false;
     }
     setWarning({ visible: false, message: "" });
@@ -155,10 +216,10 @@ const Recommendations = () => {
         phoneNumber: formData.phonenumber,
         gamingDate: formData.gamingdate,
         gameStartTime: formData.gamingstarttime,
-        gameEndTime: formData.ganmingendtime,
+        gameEndTime: formData.gamingendtime,
         address: formData.gamelocation,
         zipCode: formData.zip,
-      })
+      });
     }
     if (step === 4) {
       await inviteDoublePlayer({
@@ -169,80 +230,184 @@ const Recommendations = () => {
         phoneNumber: formData.phonenumber,
         gamingDate: formData.gamingdate,
         gameStartTime: formData.gamingstarttime,
-        gameEndTime: formData.ganmingendtime,
+        gameEndTime: formData.gamingendtime,
         address: formData.gamelocation,
         zipCode: formData.zip,
-      })
+      });
     }
     setInviteShow(false);
-  }
+  };
 
   const handleRedirectToPartnerList = () => {
-    setStep(2)
-    handleFormatClose()
-  }
+    setStep(2);
+    handleFormatClose();
+  };
 
   const getTitle = useCallback(() => {
     if (step === 1) {
-      return <h4>Recommendations for you</h4>
+      return <h4>Recommendations for you</h4>;
     }
     if (step === 2) {
-      return <h4>We founds some partners for you! Have a partner already? Click <span style={{ color: 'blue', cursor: 'pointer' }} onClick={handleFormatShow}>here</span> </h4>
+      return (
+        <h4>
+          We founds some partners for you! Have a partner already? Click{" "}
+          <span
+            style={{ color: "blue", cursor: "pointer" }}
+            onClick={handleFormatShow}
+          >
+            here
+          </span>{" "}
+        </h4>
+      );
     }
     if (step === 3) {
-      return <h4>Double play recommendation: player I</h4>
+      return <h4>Double play recommendation: player I</h4>;
     }
     if (step === 4) {
-      return <h4>Double play recommendation: player II</h4>
+      return <h4>Double play recommendation: player II</h4>;
     }
-  }, [step])
+  }, [step]);
 
   const getInviteTitle = useCallback(() => {
     if (step === 1) {
-      return <h4>Hi {sessionStorage.getItem("username")}, please fill up your invitation for {singlePlayer.name}</h4>
+      return (
+        <h4>
+          Hi {sessionStorage.getItem("username")}, please fill up your
+          invitation for {singlePlayer.name}
+        </h4>
+      );
     }
     if (step === 2) {
-      return <h4>Hi {sessionStorage.getItem("username")}, please fill up your invitation for inviting {partner.name} as your partner</h4>
+      return (
+        <h4>
+          Hi {sessionStorage.getItem("username")}, please fill up your
+          invitation for inviting {partner.name} as your partner
+        </h4>
+      );
     }
     if (step === 4) {
-      return <h4>Hi {sessionStorage.getItem("username")
-      }, please fill up your invitation for inviting {doublePlayerList[0].name} and {doublePlayerList[1] && doublePlayerList[1].name}</h4>
+      return (
+        <h4>
+          Hi {sessionStorage.getItem("username")}, please fill up your
+          invitation for inviting {partner.name}(partner),{" "}
+          {doublePlayerList[0].name}, and{" "}
+          {doublePlayerList[1] && doublePlayerList[1].name}
+        </h4>
+      );
     }
-  }, [step, singlePlayer, partner, doublePlayerList])
+  }, [step, singlePlayer, partner, doublePlayerList]);
 
   return (
     <Container>
       <div className="recommd-tool">
         {getTitle()}
-        {step !== 2 &&
+        {step !== 2 && (
           <div className="d-flex align-items-center">
             <span style={{ marginRight: 20 }}>Game Format</span>
             <div>
-              <span style={format === 'single' ? { color: 'rgb(45,116,229)', borderBottom: '2px solid rgb(45, 116, 229)', display: 'inline-block', padding: '8px', margin: '0 10px', cursor: 'pointer' } : { display: 'inline-block', padding: '8px', margin: '0 10px', cursor: 'pointer' }} onClick={() => { handleFormatChange('single') }}>Single</span>
-              <span style={format === 'double' ? { color: 'rgb(45,116,229)', borderBottom: '2px solid rgb(45, 116, 229)', display: 'inline-block', padding: '8px', margin: '0 10px', cursor: 'pointer' } : { display: 'inline-block', padding: '8px', margin: '0 10px', cursor: 'pointer' }} onClick={() => { handleFormatChange('double') }}>Double</span>
-              <span style={format === 'mix' ? { color: 'rgb(45,116,229)', borderBottom: '2px solid rgb(45, 116, 229)', display: 'inline-block', padding: '8px', margin: '0 10px', cursor: 'pointer' } : { display: 'inline-block', padding: '8px', margin: '0 10px', cursor: 'pointer' }} onClick={() => { handleFormatChange('mix') }}>Mix</span>
+              <span
+                style={
+                  format === "single"
+                    ? {
+                        color: "rgb(45,116,229)",
+                        borderBottom: "2px solid rgb(45, 116, 229)",
+                        display: "inline-block",
+                        padding: "8px",
+                        margin: "0 10px",
+                        cursor: "pointer",
+                      }
+                    : {
+                        display: "inline-block",
+                        padding: "8px",
+                        margin: "0 10px",
+                        cursor: "pointer",
+                      }
+                }
+                onClick={() => {
+                  handleFormatChange("single");
+                }}
+              >
+                Single
+              </span>
+              <span
+                style={
+                  format === "double"
+                    ? {
+                        color: "rgb(45,116,229)",
+                        borderBottom: "2px solid rgb(45, 116, 229)",
+                        display: "inline-block",
+                        padding: "8px",
+                        margin: "0 10px",
+                        cursor: "pointer",
+                      }
+                    : {
+                        display: "inline-block",
+                        padding: "8px",
+                        margin: "0 10px",
+                        cursor: "pointer",
+                      }
+                }
+                onClick={() => {
+                  handleFormatChange("double");
+                }}
+              >
+                Double
+              </span>
+              <span
+                style={
+                  format === "mix"
+                    ? {
+                        color: "rgb(45,116,229)",
+                        borderBottom: "2px solid rgb(45, 116, 229)",
+                        display: "inline-block",
+                        padding: "8px",
+                        margin: "0 10px",
+                        cursor: "pointer",
+                      }
+                    : {
+                        display: "inline-block",
+                        padding: "8px",
+                        margin: "0 10px",
+                        cursor: "pointer",
+                      }
+                }
+                onClick={() => {
+                  handleFormatChange("mix");
+                }}
+              >
+                Mix
+              </span>
             </div>
-          </div>}
+          </div>
+        )}
       </div>
       <div>
         <Row className="my-4">
-          {randomUsers.length > 0 && randomUsers.map((user, index) => {
-            return (
-              <Col md={6} xl={4} xxl={3} className="d-flex justify-content-center mb-4" sm key={index}>
-                <SingleCardComponent
-                  user={user}
-                  invite
-                  onInviteClick={() => handleInviteOpen(user)}
-                />
-              </Col>
-            )
-          })}
+          {recommendUsers.length > 0 &&
+            recommendUsers.map((user, index) => {
+              return (
+                <Col
+                  md={6}
+                  xl={4}
+                  xxl={3}
+                  className="d-flex justify-content-center mb-4"
+                  sm
+                  key={index}
+                >
+                  <SingleCardComponent
+                    user={user}
+                    invite
+                    onInviteClick={() => handleInviteOpen(user)}
+                  />
+                </Col>
+              );
+            })}
         </Row>
       </div>
 
       <Modal show={formatShow} onHide={handleFormatClose} centered size="lg">
         <Modal.Body>
-          <div style={{ textAlign: 'center', padding: 40 }}>
+          <div style={{ textAlign: "center", padding: 40 }}>
             <h4>Please let use know who is your partner</h4>
             <div className="d-flex align-items-center my-5">
               <Form.Control
@@ -253,9 +418,20 @@ const Recommendations = () => {
                   setEmail(e.target.value);
                 }}
               />
-              <Button style={{ marginLeft: 10 }} onClick={handleFormatSubmit} >Submit</Button>
+              <Button style={{ marginLeft: 10 }} onClick={handleFormatSubmit}>
+                Submit
+              </Button>
             </div>
-            <h4>Don’t have a partner yet? Click <span style={{ color: 'blue', cursor: 'pointer' }} onClick={handleRedirectToPartnerList}>here</span> to find a partner first.</h4>
+            <h4>
+              Don’t have a partner yet? Click{" "}
+              <span
+                style={{ color: "blue", cursor: "pointer" }}
+                onClick={handleRedirectToPartnerList}
+              >
+                here
+              </span>{" "}
+              to find a partner first.
+            </h4>
           </div>
         </Modal.Body>
       </Modal>
@@ -263,7 +439,9 @@ const Recommendations = () => {
       <Modal show={inviteShow} onHide={handleInviteClose} centered>
         <Modal.Body>
           {getInviteTitle()}
-          {warning.visible && <Alert variant="warning">{warning.message}</Alert>}
+          {warning.visible && (
+            <Alert variant="warning">{warning.message}</Alert>
+          )}
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Your Phone Number</Form.Label>
@@ -284,28 +462,29 @@ const Recommendations = () => {
                 }}
               />
             </Form.Group>
-            <Form.Group
-              className="mb-3">
+            <Form.Group className="mb-3">
               <Form.Label>Gaming Start Time</Form.Label>
               <Form.Control
+                type="time"
                 value={formData.gamingstarttime}
                 onChange={(e) => {
+                  console.log(e.target.value);
                   handleChange("gamingstarttime", e.target.value);
                 }}
               />
             </Form.Group>
-            <Form.Group
-              className="mb-3">
+            <Form.Group className="mb-3">
               <Form.Label>Gaming End Time</Form.Label>
               <Form.Control
+                type="time"
                 value={formData.gamingendtime}
                 onChange={(e) => {
+                  console.log(e.target.value);
                   handleChange("gamingendtime", e.target.value);
                 }}
               />
             </Form.Group>
-            <Form.Group
-              className="mb-3">
+            <Form.Group className="mb-3">
               <Form.Label>Gaming Location</Form.Label>
               <Form.Control
                 value={formData.gamelocation}
@@ -314,9 +493,8 @@ const Recommendations = () => {
                 }}
               />
             </Form.Group>
-            <Form.Group
-              className="mb-3">
-              <Form.Label>Zip</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>ZipCode</Form.Label>
               <Form.Control
                 value={formData.zip}
                 onChange={(e) => {
@@ -324,16 +502,16 @@ const Recommendations = () => {
                 }}
               />
             </Form.Group>
-            <Form.Group
-              className="mb-3"
-              controlId="notes"
-            >
+            <Form.Group className="mb-3" controlId="notes">
               <Form.Label>Notes</Form.Label>
-              <Form.Control as="textarea" rows={3}
+              <Form.Control
+                as="textarea"
+                rows={3}
                 value={formData.notes}
                 onChange={(e) => {
                   handleChange("notes", e.target.value);
-                }} />
+                }}
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -347,6 +525,6 @@ const Recommendations = () => {
         </Modal.Footer>
       </Modal>
     </Container>
-  )
-}
+  );
+};
 export default Recommendations;

@@ -23,3 +23,6 @@ export const inviteSinglePlayer = (data) =>
   post("/badminton/gaming/inviteSinglePlayer/", data);
 export const inviteDoublePlayer = (data) =>
   post("/badminton/gaming/inviteDoublePlayer/", data);
+export const getSinglePlayerRecommendations = (data) => get(`badminton/users/getSinglePlayerRecommendations/${data.email}`);
+export const getFirstDoublePlayerRecommendations = (data) => get(`badminton/users/getFirstDoublePlayerRecommendations/${data.email1}/${data.email2}`);
+export const getSecondDoublePlayerRecommendations = (data) => get(`badminton/users/getSecondDoublePlayerRecommendations/${data.email1}/${data.email2}/${data.email3}`);

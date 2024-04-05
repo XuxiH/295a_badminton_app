@@ -36,7 +36,7 @@ function Login() {
       const result = await login(user);
       if (result && result.statusCode == 200) {
         setWarning({ visible: false, message: "" });
-        // await updateUserOnlineStatus({ email: user.email });
+        await updateUserOnlineStatus({ email: user.email });
         sessionStorage.setItem("email", user.email);
         const userResult = await getUserInfo({ email: user.email });
         console.log("result is : ", userResult);
