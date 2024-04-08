@@ -162,6 +162,16 @@ const Recommendations = () => {
     zip: undefined,
   });
 
+  const phoneNumberAutoFormat = (phoneNumber) => {
+    const number = phoneNumber.trim().replace(/[^0-9]/g, "");
+
+    if (number.length < 4) return number;
+    if (number.length < 7) return number.replace(/(\d{3})(\d{1})/, "$1-$2");
+    if (number.length < 11)
+      return number.replace(/(\d{3})(\d{3})(\d{1})/, "$1-$2-$3");
+    return number.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3");
+  };
+
   const handleChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
   };
@@ -177,6 +187,17 @@ const Recommendations = () => {
     } = formData;
     if (!phonenumber || phonenumber.length < 1) {
       setWarning({ visible: true, message: "Please type your phonenumber." });
+      return false;
+    }
+    if (
+      phonenumber.length !== 12 ||
+      phonenumber[3] !== "-" ||
+      phonenumber[7] !== "-"
+    ) {
+      setWarning({
+        visible: true,
+        message: "Please type your valid phonenumber.",
+      });
       return false;
     }
     if (!gamingdate || gamingdate.length < 1) {
@@ -198,7 +219,7 @@ const Recommendations = () => {
       setWarning({ visible: true, message: "Please type your gamelocation." });
       return false;
     }
-    if (!zip || zip.length < 1) {
+    if (!zip || zip.length < 5) {
       setWarning({ visible: true, message: "Please type your zipcode." });
       return false;
     }
@@ -447,8 +468,12 @@ const Recommendations = () => {
               <Form.Label>Your Phone Number</Form.Label>
               <Form.Control
                 value={formData.phonenumber}
+                maxLength={12}
                 onChange={(e) => {
-                  handleChange("phonenumber", e.target.value);
+                  handleChange(
+                    "phonenumber",
+                    phoneNumberAutoFormat(e.target.value)
+                  );
                 }}
               />
             </Form.Group>
@@ -497,6 +522,7 @@ const Recommendations = () => {
               <Form.Label>ZipCode</Form.Label>
               <Form.Control
                 value={formData.zip}
+                maxLength={5}
                 onChange={(e) => {
                   handleChange("zip", e.target.value);
                 }}
