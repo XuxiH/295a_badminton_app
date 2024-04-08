@@ -9,6 +9,8 @@ import Questionair from "./pages/questionair";
 import Home from "./pages/home";
 import Recommendations from "./pages/recommendations";
 import Matches from "./pages/matches";
+import Invitation from "./pages/invitation";
+import Profile from "./pages/profile";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -41,6 +43,10 @@ function App() {
           element: <Firstvisit />,
         },
         {
+          path: "profile",
+          element: <Profile />,
+        },
+        {
           path: "questionair",
           element: <Questionair />,
         },
@@ -51,6 +57,10 @@ function App() {
         {
           path: "matches",
           element: <Matches />,
+        },
+        {
+          path: "invitation",
+          element: <Invitation />,
         },
       ],
     },

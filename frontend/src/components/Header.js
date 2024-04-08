@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Container, Navbar, Nav, Image } from "react-bootstrap";
 import logo from "../assets/images/logo.svg";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getUserInfo } from "../api";
 import "./Header.css";
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const username = sessionStorage.getItem("username");
   const [user, setUser] = useState({});
   const [active, setActive] = useState("/home");
@@ -36,6 +37,10 @@ const Header = () => {
       return;
     }
   };
+
+  const handleProfileClick = () => {
+    navigate("/profile");
+  }
 
   return (
     <Navbar expand="lg" sticky="top" className="header">
@@ -79,8 +84,17 @@ const Header = () => {
                 Matches
               </span>
             </Nav.Link>
+            <Nav.Link as={Link} to={"/invitation"}>
+              <span
+                style={{
+                  color: active === "/invitation" ? "rgb(45,116,229)" : "black",
+                }}
+              >
+                Invitation
+              </span>
+            </Nav.Link>
           </Nav>
-          <div>
+          <div onClick={handleProfileClick}>
             <span className="me-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
