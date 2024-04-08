@@ -335,17 +335,31 @@ router.get(
     }
 
     const invitations = await Invitation.find({ invitorEmail: userEmail }); 
-    if (!invitations || !invitations.length) {
+    // Get today's date
+    let today = new Date();
+   
+    let notificationList = [];
+    if (!isEmpty(invitations)) {
+      invitations.forEach((inviation) => {
+        let targetDate = new Date(inviation.gamingDate);
+        if(targetDate >= today){
+          notificationList.push(inviation);
+        }
+        
+      });
       return res
-        .status(404)
-        .json({ statusCode: 404, message: "No invitation record found for this user: " + userEmail});
+        .status(200)
+        .json({ statusCode: 200, 
+          message: "Invitation record found for this user: " + userEmail,
+          body: notificationList,
+        });
     }
  
 
     return res.status(200).json({
       statusCode: 200,
       message: "Found players list.",
-      body: invitations,
+      body: notificationList,
     });
 
 

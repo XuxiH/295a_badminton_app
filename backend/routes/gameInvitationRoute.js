@@ -245,21 +245,30 @@ router.get(
     });
     console.log("as partner, ", invitationRecordAsPartner);
     console.log("as opponent, ", invitationRecordAsOpponent);
+    // Get today's date
+    let today = new Date();
+
     if (!isEmpty(invitationRecordAsPartner)) {
       invitationRecordAsPartner.forEach((partner) => {
-        let notificationObj = {
-          invitor: partner.invitorEmail,
-          phoneNumber:partner.phoneNumber,
-          gamingDate:partner.gamingDate,
-          gameStartTime:partner.gameStartTime,
-          message: "You received a gaming invitation as the invitor's partner.",
-        };
-        notificationList.push(notificationObj);
+        let targetDate = partner.gamingDate;
+        if(targetDate >= today){
+          let notificationObj = {
+            invitor: partner.invitorEmail,
+            phoneNumber:partner.phoneNumber,
+            gamingDate:partner.gamingDate,
+            gameStartTime:partner.gameStartTime,
+            message: "You received a gaming invitation as the invitor's partner.",
+          };
+          notificationList.push(notificationObj);
+        }
+        
       });
     }
 
     if (!isEmpty(invitationRecordAsOpponent)) {
       invitationRecordAsOpponent.forEach((partner) => {
+        let targetDate = partner.gamingDate;
+        if(targetDate >= today){
         let notificationObj = {
           invitor: partner.invitorEmail,
           phoneNumber:partner.phoneNumber,
@@ -269,6 +278,7 @@ router.get(
             "You received a gaming invitation as the invitor's opponent.",
         };
         notificationList.push(notificationObj);
+      }
       });
     }
 
