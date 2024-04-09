@@ -90,7 +90,7 @@ function Signup() {
   };
 
   return (
-    <Container style={{ paddingTop: 56 }}>
+    <Container style={{ paddingTop: 20 }}>
       <div className="form-signin">
         {warning.visible && <Alert variant="warning">{warning.message}</Alert>}
         <Form>

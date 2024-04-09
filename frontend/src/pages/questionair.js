@@ -97,7 +97,7 @@ const Questionair = () => {
     <Container className="questionair">
       <Row>
         <span className="questionair-text">
-          Let’s letter better. Please let us know which recommendation you like
+          Let’s get better. Please let us know which recommendation you like
           better?
         </span>
         <p className="questionair-text mt-5">Current Choice: {currentStep}</p>

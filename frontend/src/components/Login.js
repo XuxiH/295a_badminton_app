@@ -55,7 +55,7 @@ function Login() {
   };
 
   return (
-    <Container style={{ paddingTop: 56 }}>
+    <Container style={{ paddingTop: 20 }}>
       <div className="form-signin">
         {warning.visible && <Alert variant="warning">{warning.message}</Alert>}
         <Form>
@@ -71,7 +71,7 @@ function Login() {
               onChange={(e) => {
                 setUser({ ...user, email: e.target.value });
               }}
-              placeholder="Type your username"
+              placeholder="Type your email"
             />
           </Form.Group>
           <Form.Group className="mb-3" controlId="exampleForm.password">
