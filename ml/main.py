@@ -108,58 +108,25 @@ async def trainML(userEmail: str):
 # recommendation routes
 @app.get("/recsingles")
 async def recSingles(userEmail: str):
-    # retrieve target user and their preference model weights
-    targetUser = getUser(userEmail)
-    targetUserWeights = getWeights(userEmail)
-
-    top8 = get_top_8(targetUser, targetUserWeights, [userEmail])
-
+    top8 = get_top_8_revised([userEmail])
     return top8
 
 @app.get("/recdoubles1")
 async def recDoubles1(userEmail: str, partnerEmail: str):
-
-    targetUser = getUser(userEmail)
-    partnerUser = getUser(partnerEmail)
-
-    targetUserWeights = getWeights(userEmail)
-    partnerUserWeights = getWeights(partnerEmail)
-
-    # need to average out the two users into one target user in order to take both sets of preferences into account
-    avgUser = get_average_user(targetUser, partnerUser)
-
-    # average out the preference model weights to find someone who appeals to both partners
-    avgWeights = get_average_weights(targetUserWeights, partnerUserWeights)
-
-    # retrive top 8 scoring users
-    top8 = get_top_8(avgUser, avgWeights, [userEmail, partnerEmail])
-    
+    top8 = get_top_8_revised([userEmail, partnerEmail])
     return top8
 
 @app.get("/recdoubles2")
 async def recDoubles2(userEmail: str, partnerEmail: str, oppEmail: str):
-
-    targetUser = getUser(userEmail)
-    partnerUser = getUser(partnerEmail)
-    oppUser = getUser(oppEmail)
-    
-    targetUserWeights = getWeights(userEmail)
-    partnerUserWeights = getWeights(partnerEmail)
-    oppUserWeights = getWeights(oppEmail)
-    
-    # get average user, but give the opponent double the weight since they will be playing with this recommendation
-    avgUser = get_average_user(targetUser, partnerUser)
-    avgUser = get_average_user(avgUser, oppUser)
-
-    # average out the preference model weights to find someone who appeals to both partners and opponent, biased toward opponent
-    avgWeights = get_average_weights(targetUserWeights, partnerUserWeights)
-    avgWeights = get_average_weights(avgWeights, oppUserWeights)
-
-    # retrive top 8 scoring users
-    top8 = get_top_8(avgUser, avgWeights, [userEmail, partnerEmail, oppEmail])
-
+    top8 = get_top_8_revised([userEmail, partnerEmail, oppEmail])
     return top8
 
+@app.get("/test")
+async def testEndpoint():
+    emailList = ["bruceoconnor@sjsu.edu", "charlottepayne@sjsu.edu", "williamsu@sjsu.edu", "buddyreeder@sjsu.edu"]
+    userData = getUserMLDatas(emailList)
+    return userData
+    
 
 # ===================================== PYMONGO GETTERS =========================================== 
 def getUser(email: str):
@@ -168,7 +135,73 @@ def getUser(email: str):
         raise HTTPException(status_code=404, detail=f"{email} could not be found in the users database.")
     return targetUser
 
-def getWeights(email: str):
+def getUserDatas(emailList):
+    targetUsers = list(db.badminton.users.find({"email": {"$in": emailList}}, {
+        "email":1,
+        "age":1,
+        "gender":1,
+        "yearsOfExperience":1,
+        "format":1,
+        "style":1,
+        "skillRating":1,
+        "onlineStatus":1,
+        "matchStatus":1,
+        "_id": 0
+        }))
+    
+    if len(targetUsers) < len(emailList):
+        raise Exception("One of the provided users could not be found.")
+    
+    if len(targetUsers) > len(emailList):
+        raise Exception("One of the provided users has a duplicate entry in user db.")
+    
+    # arrange data in targetUsers to match positions in emailList
+    finalData = [None] * len(emailList)
+    
+    # hash locations of emails
+    locationDict = {}
+    for index, email in enumerate(emailList):
+        locationDict[email] = index
+        
+    # place data in correct order
+    for data in targetUsers:
+        finalData[locationDict[data["email"]]] = data
+    
+    return finalData
+    
+def getUserMLDatas(emailList):
+    targetUsersWeights = list(db.badminton.mldata.find({"email": {"$in": emailList}}, {
+        "email": 1,
+        "weights": 1,
+        "_id": 0
+        }))
+    
+    print(len(targetUsersWeights), len(emailList))
+    print(targetUsersWeights)
+    
+    if len(targetUsersWeights) < len(emailList):
+        raise Exception("One of the provided users could not be found.")
+    
+    if len(targetUsersWeights) > len(emailList):
+        raise Exception("One of the provided users has a duplicate entry in mldata.")
+    
+    # arrange data in targetUsers to match positions in emailList
+    finalData = [None] * len(emailList)
+    
+    # hash locations of emails
+    locationDict = {}
+    for index, email in enumerate(emailList):
+        locationDict[email] = index
+        
+    # place data in correct order
+    for data in targetUsersWeights:
+        finalData[locationDict[data["email"]]] = data["weights"]
+        # del finalData[locationDict[data["email"]]]["email"]
+
+    
+    return finalData
+
+def getWeights(email: str): # DEPRECATED
     targetUserMLData = db.badminton.mldata.find_one({"email": email}, {"weights": 1})
     if targetUserMLData is None:
         raise HTTPException(status_code=422, detail=f"{email} could not be found in mldata.")
@@ -375,6 +408,73 @@ def get_top_8(user, userMLData, exc_emails, top_x = 8):
     top8 = scoreDF.iloc[0:top_x,0].to_list()
     
     return top8
+
+def get_top_8_revised(userList, top_x = 8):
+    
+    # check userList valid
+    if len(userList) < 1 or len(userList) > 3:
+        return None
+    
+    # get entire userbase except user data
+    userbaseAllDF = pd.DataFrame(list(db.badminton.users.find({"email": {"$nin": userList}}, {
+        "email":1,
+        "age":1,
+        "gender":1,
+        "yearsOfExperience":1,
+        "format":1,
+        "style":1,
+        "skillRating":1,
+        "onlineStatus":1,
+        "matchStatus":1,
+        "_id": 0
+        })))
+    userbaseAllDF = userbaseAllDF.dropna()
+    
+    # pull user datas
+    userDatas = getUserDatas(userList)
+    userWeights = getUserMLDatas(userList)
+    
+    # prep scoreDF
+    scoreDF = userbaseAllDF.loc[:, ["email"]]
+    
+    # calculate scores for main user
+    comparisonDF_U1 = make_comparison(userDatas[0], userbaseAllDF) # generate comparison dataframe
+    scoreDF["pref_score_u1"] = comparisonDF_U1.apply(apply_weights, axis=1, weights=userWeights[0])
+    
+    if len(userList) == 1: # if only one player, we're done
+        scoreDF = scoreDF.sort_values(by=['pref_score_u1'], ascending=False)
+        top8 = scoreDF.iloc[0:top_x,0].to_list()
+        return top8
+    
+    # check if second player exists, and if so calculate preference scores
+    if len(userList) >= 2:
+        comparisonDF_U2 = make_comparison(userDatas[1], userbaseAllDF) # generate comparison dataframe
+        scoreDF["pref_score_u2"] = comparisonDF_U2.apply(apply_weights, axis=1, weights=userWeights[1])
+        
+    # average out U1 and U2's preference scores
+    scoreDF = scoreDF.assign(pref_score_u1u2 = lambda x: ((x["pref_score_u1"] + x["pref_score_u2"])/2))
+    
+    if len(userList) == 2: # if only two player we're done
+        scoreDF = scoreDF.sort_values(by=['pref_score_u1u2'], ascending=False)
+        top8 = scoreDF.iloc[0:top_x,0].to_list()
+        return top8
+        
+    if len(userList) == 3:
+        comparisonDF_U3 = make_comparison(userDatas[2], userbaseAllDF) # generate comparison dataframe 
+        scoreDF["pref_score_u3"] = comparisonDF_U3.apply(apply_weights, axis=1, weights=userWeights[2])
+        
+    # average out U3 with U1U2 (U3 gets double the influence)
+    scoreDF = scoreDF.assign(pref_score_u1u2u3 = lambda x: ((x["pref_score_u1u2"] + x["pref_score_u3"])/2))
+    scoreDF = scoreDF.sort_values(by=['pref_score_u1u2u3'], ascending=False)
+    top8 = scoreDF.iloc[0:top_x,0].to_list()
+    return top8
+        
+        
+    
+    # averages preference score per user instead of weights, is theoretically more correct
+    # first case, one existing player
+    # second case, two existing players
+    # third case, 
 
 
 # ===================================== ELO UTIL FUNCS =====================================
