@@ -129,12 +129,6 @@ async def testEndpoint():
     
 
 # ===================================== PYMONGO GETTERS =========================================== 
-def getUser(email: str):
-    targetUser = db.badminton.users.find_one({"email": email})
-    if targetUser is None:
-        raise HTTPException(status_code=404, detail=f"{email} could not be found in the users database.")
-    return targetUser
-
 def getUserDatas(emailList):
     targetUsers = list(db.badminton.users.find({"email": {"$in": emailList}}, {
         "email":1,
@@ -201,7 +195,13 @@ def getUserMLDatas(emailList):
     
     return finalData
 
-def getWeights(email: str): # DEPRECATED
+def getUser_deprecated(email: str): # DEPRECATED
+    targetUser = db.badminton.users.find_one({"email": email})
+    if targetUser is None:
+        raise HTTPException(status_code=404, detail=f"{email} could not be found in the users database.")
+    return targetUser
+
+def getWeights_deprecated(email: str): # DEPRECATED
     targetUserMLData = db.badminton.mldata.find_one({"email": email}, {"weights": 1})
     if targetUserMLData is None:
         raise HTTPException(status_code=422, detail=f"{email} could not be found in mldata.")
@@ -306,18 +306,27 @@ def make_comparison(userDict, allUserDF):
 def make_preference(choices, comparisonDF):
     # preferenceDF = pd.DataFrame(columns=['age_diff', 'yoe_diff', 'format_compat', 'style_compat', 'rating_diff', 'onlineStatus', 'matchStatus', 'target'])
     preferenceSeries = []
+    positive = False
     for choice in choices:
-        u1 = comparisonDF[comparisonDF["email"] == choice[0]].iloc[0].drop("email")
-        u2 = comparisonDF[comparisonDF["email"] == choice[1]].iloc[0].drop("email")
-        diff = u2-u1
-        diff["target"] = choice[2]
+        # first check if balancing swap needs to happen
+        if (positive and choice[2] == 0) or (not positive and choice[2] == 1):
+            u2 = comparisonDF[comparisonDF["email"] == choice[0]].iloc[0].drop("email")
+            u1 = comparisonDF[comparisonDF["email"] == choice[1]].iloc[0].drop("email")
+            diff = u2-u1
+            diff["target"] = abs(choice[2] - 1)
+        else:
+            u1 = comparisonDF[comparisonDF["email"] == choice[0]].iloc[0].drop("email")
+            u2 = comparisonDF[comparisonDF["email"] == choice[1]].iloc[0].drop("email")
+            diff = u2-u1
+            diff["target"] = choice[2]
         preferenceSeries.append(diff)
+        positive = not positive
     return pd.DataFrame(preferenceSeries)
 
 def runLR(preferenceDF):
     X = preferenceDF.drop("target", axis=1)
     y = preferenceDF["target"]
-    model = LogisticRegression()
+    model = LogisticRegression(max_iter=400)
     model.fit(X, y)
     weights = {
         "age_diff": model.coef_[0,0],
