@@ -1,22 +1,33 @@
 let mongoose = require("mongoose");
 
 const matchHistorySchema = mongoose.Schema({
-    user:{ //coming from the user schema
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "User"
+    email:{ //coming from the MatchHistory schema
+        type: String,
+        required: [true, "Email is a required field"]
     },
-    history:[{
-        user:{ //coming from the user schema
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: "User"
-        },
-        otherPlayerName: {type: String, required: true},
-        matchDuration:{type: Number, required: true},
-        format:{type: String, required: true},
-        score:{type: String, required: true}
-    }]
+    date:{
+        type: Date,
+        required: [true, "Match Date is a required field"]
+    },
+    format:{
+        type: String,
+        required: [true, "Play format is a required field"]
+    },
+    matchingPartners:{
+        type: String
+    },
+    matchingOpponents:{
+        type: Array,
+        required: [true, "Opponent is a required field"]
+    },
+    yourScore:{
+        type: Number,
+        required: [true, "Score is a required field"]
+    },
+    opponentScore:{
+        type: Number,
+        required: [true, "Score is a required field"]
+    }
 },{
     timestamps:true
 })
