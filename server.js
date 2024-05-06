@@ -71,15 +71,15 @@ app.use('/badminton/users', userRoutes); //get all the users
 app.use('/badminton/gaming', gameInvitationRoutes); 
 
 // Serve static files from the React app
-//badmintonApplication\frontend/src/index.js
-app.use(express.static(path.join(__dirname, 'frontend/src')));
+//badmintonApplication\frontend\build
+app.use(express.static(path.join(__dirname, 'frontend/build')));
 
 // Define API routes or any other routes here
 
 // The "catchall" handler: for any request that doesn't
 // match the ones above, send back React's index.html file.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname+'/frontend/public/index.html'));
+  res.sendFile(path.join(__dirname+'/frontend/build/index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
