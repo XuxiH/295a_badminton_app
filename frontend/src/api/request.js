@@ -1,6 +1,9 @@
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:3000";
+//axios.defaults.baseURL = "http://localhost:3000";
+// Set base URL dynamically based on the environment
+axios.defaults.baseURL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000';
+
 
 axios.interceptors.request.use(
   function (config) {
