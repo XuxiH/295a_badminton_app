@@ -6,7 +6,7 @@
   "scripts": {
       "heroku-postbuild": "cd frontend && npm install && npm run build",
       "devStart": "nodemon index.js",
-      "start": "cd backend && node index.js"
+      "start": "cd backend && npm install && node index.js"
   },
   "author": "",
   "license": "ISC",
