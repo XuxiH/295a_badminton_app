@@ -58,7 +58,7 @@ app.use(fileUpload());
 
 // Connect to MongoDB
 mongoose
-  .connect(config.mongo.mongoDBURL, options)
+  .connect("mongodb+srv://cmpe295:BadmintonCmpe295@cmpe295badminton.x2wltjj.mongodb.net/badminton", options)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Failed to connect to MongoDB:", err));
 
