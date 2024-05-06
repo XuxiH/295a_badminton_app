@@ -13,10 +13,10 @@ const app = express();
 // let userRoutes = require("./routes/userRoute");
 // let gameInvitationRoutes = require("./routes/gameInvitationRoute");
 
-app.set("view engine", "ejs");
+// app.set("view engine", "ejs");
 
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb" }));
+// app.use(express.json({ limit: "50mb" }));
+// app.use(express.urlencoded({ limit: "50mb" }));
 
 //use cors to allow cross origin resource sharing
 // app.use(cors({ origin: config.localhost, credentials: true }));
