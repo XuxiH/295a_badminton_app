@@ -56,6 +56,10 @@ var options = {
 
 app.use(fileUpload());
 
+// Serve static files from the React app
+//badmintonApplication\frontend\build
+app.use(express.static(path.join(__dirname, 'frontend/build')));
+
 // Connect to MongoDB
 mongoose
   .connect("mongodb+srv://cmpe295:BadmintonCmpe295@cmpe295badminton.x2wltjj.mongodb.net/badminton", options)
