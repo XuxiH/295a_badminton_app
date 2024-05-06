@@ -1,4 +1,6 @@
-import React from "react";
+//import React from "react";
+const React = require("react");
+/*
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Main from "./components/Main";
@@ -11,11 +13,32 @@ import Recommendations from "./pages/recommendations";
 import Matches from "./pages/matches";
 import Invitation from "./pages/invitation";
 import Profile from "./pages/profile";
+*/
+const Login = require("./components/Login");
+const Signup = require("./components/Signup");
+const Main = require("./components/Main");
+const Firstvisit = require("./pages/FirstVisit");
+const NotFoundPage = require("./pages/NotFoundPage");
+const MainLayout = require("./layouts/index");
+const Questionair = require("./pages/questionair");
+const Home = require("./pages/home");
+const Recommendations = require("./pages/recommendations");
+const Matches = require("./pages/matches");
+const Invitation = require("./pages/invitation");
+const Profile = require("./pages/profile");
+/*
 import {
   createBrowserRouter,
   RouterProvider,
   redirect,
 } from "react-router-dom";
+*/
+const {
+  createBrowserRouter,
+  RouterProvider,
+  redirect,
+} = require("react-router-dom");
+
 
 const loader = () => {
   const useremail = sessionStorage.getItem("email");
