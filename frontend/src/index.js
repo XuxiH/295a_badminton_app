@@ -1,8 +1,17 @@
+/*
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import 'bootstrap/dist/css/bootstrap.css';
+*/
+
+const React = require("react");
+const ReactDOM = require("react-dom/client");
+require("./index.css");
+const App = require("./App");
+require('bootstrap/dist/css/bootstrap.css');
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
