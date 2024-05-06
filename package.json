@@ -4,7 +4,7 @@
   "description": "badmintonapplication",
   "main": "server.js",
   "scripts": {
-      "heroku-postbuild": "cd frontend && npm install && npm run build && cd src && node index.js",
+      "heroku-postbuild": "cd frontend && npm install && npm run build",
       "devStart": "nodemon index.js",
       "start": "cd backend && node index.js"
   },
