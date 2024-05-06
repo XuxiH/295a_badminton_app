@@ -4,9 +4,9 @@
   "description": "badmintonapplication",
   "main": "server.js",
   "scripts": {
-      "start": "cd frontend && npm install && npm run build && cd src && node App.js",
+      "heroku-postbuild": "cd frontend && npm install && npm run build && cd src && node App.js",
       "devStart": "nodemon index.js",
-      "heroku-postbuild": "cd backend && node index.js"
+      "start": "cd backend && node index.js"
   },
   "author": "",
   "license": "ISC",
